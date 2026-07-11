@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_11_060500) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_11_063000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -718,6 +718,25 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_11_060500) do
     t.index ["knowledge_source_id"], name: "index_knowledge_documents_on_knowledge_source_id"
   end
 
+  create_table "knowledge_gaps", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "ai_employee_id"
+    t.string "channel", default: "chat", null: false
+    t.text "question", null: false
+    t.text "answer_attempted"
+    t.string "hit_kind", default: "no_hit", null: false
+    t.float "score"
+    t.string "status", default: "open", null: false
+    t.bigint "resolved_by_faq_id"
+    t.text "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_knowledge_gaps_on_account_id_and_created_at"
+    t.index ["account_id", "status"], name: "index_knowledge_gaps_on_account_id_and_status"
+    t.index ["account_id"], name: "index_knowledge_gaps_on_account_id"
+    t.index ["ai_employee_id"], name: "index_knowledge_gaps_on_ai_employee_id"
+  end
+
   create_table "knowledge_sources", force: :cascade do |t|
     t.bigint "account_id", null: false
     t.bigint "ai_employee_id"
@@ -1402,6 +1421,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_11_060500) do
   add_foreign_key "invoices", "contract_terms"
   add_foreign_key "knowledge_documents", "accounts"
   add_foreign_key "knowledge_documents", "knowledge_sources"
+  add_foreign_key "knowledge_gaps", "accounts"
+  add_foreign_key "knowledge_gaps", "ai_employees"
   add_foreign_key "knowledge_sources", "accounts"
   add_foreign_key "knowledge_sources", "ai_employees"
   add_foreign_key "media_assets", "accounts"

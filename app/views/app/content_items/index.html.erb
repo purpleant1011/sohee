@@ -3,9 +3,40 @@
   <div class="flex items-center justify-between">
     <div>
       <h1 class="text-2xl font-bold">📅 콘텐츠 캘린더</h1>
-      <p class="text-sm text-gray-500">최근 생성된 콘텐츠 100건 · <%= link_to "원장님 검수 큐 →", app_pending_for_review_content_items_path, class: "text-amber-700 hover:underline" %></p>
+      <p class="text-sm text-gray-500">최근 생성된 콘텐츠 100건 · <%= link_to "원장님 검수 큐 →", "/app/content", class: "text-amber-700 hover:underline" %></p>
     </div>
     <a class="px-4 py-2 rounded bg-indigo-600 text-white" href="<%= app_new_content_item_path %>">+ 새 콘텐츠 생성</a>
+  </div>
+
+  <%# ── 5단계 상태 보드 ── %>
+  <% state_counts = {
+    generated:   @current_account.content_items.where(state: "generated").count,
+    needs_review: @current_account.content_items.where(state: "needs_review").count,
+    approved:    @current_account.content_items.where(state: "approved").count,
+    scheduled:   @current_account.content_items.where(state: %w[scheduled published]).count,
+    failed:      @current_account.content_items.where(state: "failed").count
+  } %>
+  <div class="grid grid-cols-5 gap-3">
+    <div class="rounded-lg border-2 border-slate-300 bg-slate-50 p-3">
+      <div class="text-xs text-slate-500">🧪 생성</div>
+      <div class="text-2xl font-bold text-slate-900"><%= state_counts[:generated] %></div>
+    </div>
+    <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
+      <div class="text-xs text-amber-700">🔎 검수 대기</div>
+      <div class="text-2xl font-bold text-amber-900"><%= state_counts[:needs_review] %></div>
+    </div>
+    <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-3">
+      <div class="text-xs text-emerald-700">✅ 승인</div>
+      <div class="text-2xl font-bold text-emerald-900"><%= state_counts[:approved] %></div>
+    </div>
+    <div class="rounded-lg border-2 border-sky-300 bg-sky-50 p-3">
+      <div class="text-xs text-sky-700">📤 게시·예약</div>
+      <div class="text-2xl font-bold text-sky-900"><%= state_counts[:scheduled] %></div>
+    </div>
+    <div class="rounded-lg border-2 border-rose-300 bg-rose-50 p-3">
+      <div class="text-xs text-rose-700">⚠️ 실패</div>
+      <div class="text-2xl font-bold text-rose-900"><%= state_counts[:failed] %></div>
+    </div>
   </div>
 
   <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 grid grid-cols-2 md:grid-cols-4 gap-3">

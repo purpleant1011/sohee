@@ -79,6 +79,11 @@ Rails.application.routes.draw do
     get  "/faqs/:id/edit",          to: "faqs#edit",                as: :edit_faq
     patch "/faqs/:id",              to: "faqs#update"
     delete "/faqs/:id",             to: "faqs#destroy"
+    get  "/knowledge_gaps",            to: "knowledge_gaps#index",      as: :knowledge_gaps
+    get  "/knowledge_gaps/:id",        to: "knowledge_gaps#show",       as: :knowledge_gap
+    post "/knowledge_gaps",            to: "knowledge_gaps#create"
+    post "/knowledge_gaps/:id/convert", to: "knowledge_gaps#convert",  as: :convert_knowledge_gap
+    post "/knowledge_gaps/:id/dismiss", to: "knowledge_gaps#dismiss",  as: :dismiss_knowledge_gap
     get  "/products",               to: "products#index",            as: :products
     get  "/products/new",           to: "products#new",              as: :new_product
     post "/products",               to: "products#create"
@@ -152,6 +157,8 @@ Rails.application.routes.draw do
     post "/reports/trigger_daily",            to: "reports#trigger_daily",         as: :trigger_daily_reports
     post "/reports/trigger_weekly",           to: "reports#trigger_weekly",        as: :trigger_weekly_reports
     get  "/delivery_logs",                    to: "delivery_logs#index",           as: :delivery_logs
+    get  "/audit_events",                     to: "audit_events#index",            as: :audit_events
+    get  "/safety_logs",                      to: "safety_logs#index",             as: :safety_logs
     get  "/settings",                  to: "settings#show",   as: :settings
     patch "/settings",                 to: "settings#update"
     get  "/termination",               to: "terminations#new", as: :new_termination

@@ -1,0 +1,70 @@
+<% content_for :title, "안전 로그 · #{@current_account.name}" %>
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">🛡️ 안전 로그 (Safety Log)</h1>
+    <p class="text-xs text-slate-500 mt-0.5">금지어/안전 정책 위반, 자동 차단 이력입니다. 발행된 콘텐츠와 차단된 콘텐츠를 구분합니다.</p>
+  </div>
+  <div class="text-sm">
+    <% %w[all blocked passed needs_review].each do |f| %>
+      <%= link_to ({all: "전체", blocked: "차단됨", passed: "통과", needs_review: "검토필요"})[f.to_sym],
+          app_safety_logs_path(filter: f),
+          class: "px-3 py-1.5 rounded #{(@filter || "all") == f ? "bg-indigo-600 text-white" : "bg-white border border-slate-200 text-slate-700"}" %>
+    <% end %>
+  </div>
+</div>
+
+<%# ── 3컬럼 집계 ── %>
+<div class="grid grid-cols-3 gap-3 mb-4">
+  <div class="rounded-lg border-2 border-rose-300 bg-rose-50 p-3">
+    <div class="text-xs text-rose-700">🚫 차단 (7d)</div>
+    <div class="text-2xl font-bold text-rose-900"><%= @stats[:blocked_7d] %></div>
+  </div>
+  <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
+    <div class="text-xs text-amber-700">🔎 검토 필요 (7d)</div>
+    <div class="text-2xl font-bold text-amber-900"><%= @stats[:needs_review_7d] %></div>
+  </div>
+  <div class="rounded-lg border-2 border-emerald-300 bg-emerald-50 p-3">
+    <div class="text-xs text-emerald-700">✅ 통과 (7d)</div>
+    <div class="text-2xl font-bold text-emerald-900"><%= @stats[:passed_7d] %></div>
+  </div>
+</div>
+
+<div class="rounded-lg border border-slate-200 bg-white p-4">
+  <h2 class="font-bold text-sm mb-3">📋 최근 안전 이벤트</h2>
+  <% if @safety_logs.empty? %>
+    <p class="text-sm text-slate-500 py-6 text-center">아직 안전 이벤트가 기록되지 않았습니다.</p>
+  <% else %>
+    <table class="w-full text-sm">
+      <thead class="text-xs text-slate-500 border-b border-slate-200">
+        <tr>
+          <th class="text-left py-2">시각</th>
+          <th class="text-left py-2">콘텐츠</th>
+          <th class="text-left py-2">판정</th>
+          <th class="text-left py-2">사유</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @safety_logs.each do |log| %>
+          <tr class="border-b border-slate-100">
+            <td class="py-2 text-xs text-slate-500"><%= l(log.created_at, format: :short) rescue log.created_at.strftime("%m-%d %H:%M") %></td>
+            <td class="py-2">
+              <% if log.content_item %>
+                <%= link_to (log.content_item.title.presence || "콘텐츠 ##{log.content_item_id}").to_s[0, 50], app_content_item_path(log.content_item), class: "text-indigo-600 hover:underline" %>
+              <% else %>
+                <span class="text-slate-400">—</span>
+              <% end %>
+            </td>
+            <td class="py-2">
+              <span class="px-2 py-0.5 text-xs rounded
+                <%= { "blocked" => "bg-rose-100 text-rose-700", "passed" => "bg-emerald-100 text-emerald-700", "needs_review" => "bg-amber-100 text-amber-700" }[log.verdict] || "bg-slate-100 text-slate-700" %>">
+                <%= { "blocked" => "🚫 차단", "passed" => "✅ 통과", "needs_review" => "🔎 검토" }[log.verdict] || log.verdict %>
+              </span>
+            </td>
+            <td class="py-2 text-xs text-slate-600"><%= anonymize_person(log.notes.to_s[0, 80]) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>

@@ -21,6 +21,8 @@ class Account < ApplicationRecord
   has_many :reviews, dependent: :nullify
   has_many :runtime_configs, dependent: :destroy
   has_many :runtime_heartbeats, dependent: :destroy
+  has_many :knowledge_gaps, dependent: :destroy
+  has_many :safety_logs, dependent: :nullify
   has_many :csat_responses, dependent: :destroy
   has_many :inquiries, dependent: :nullify
   has_many :publication_attempts, dependent: :nullify

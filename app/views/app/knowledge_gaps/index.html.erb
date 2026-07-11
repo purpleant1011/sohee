@@ -1,0 +1,101 @@
+<% content_for :title, "지식 공백 · #{@current_account.name}" %>
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">🧩 지식 공백 (Knowledge Gap)</h1>
+    <p class="text-xs text-slate-500 mt-0.5">소희가 답변을 찾지 못했거나 점수가 낮았던 질문 모음입니다. FAQ로 변환하거나 무시 처리할 수 있습니다.</p>
+  </div>
+</div>
+
+<%# ── 4컬럼 상태 카드 ── %>
+<div class="grid grid-cols-4 gap-3 mb-4">
+  <div class="rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
+    <div class="text-xs text-amber-700">미해결</div>
+    <div class="text-2xl font-bold text-amber-900"><%= @stats[:open] %></div>
+  </div>
+  <div class="rounded-lg border border-emerald-300 bg-emerald-50 p-3">
+    <div class="text-xs text-emerald-700">FAQ 변환됨</div>
+    <div class="text-2xl font-bold text-emerald-900"><%= @stats[:converted] %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <div class="text-xs text-slate-500">무시됨</div>
+    <div class="text-2xl font-bold text-slate-700"><%= @stats[:dismissed] %></div>
+  </div>
+  <div class="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+    <div class="text-xs text-indigo-700">최근 7일 누적</div>
+    <div class="text-2xl font-bold text-indigo-900"><%= @stats[:total_7d] %></div>
+  </div>
+</div>
+
+<%# ── 상태 필터 ── %>
+<div class="flex gap-2 mb-4 text-sm">
+  <% %w[open converted_to_faq dismissed].each do |s| %>
+    <%= link_to ({open: "미해결", converted_to_faq: "FAQ 변환됨", dismissed: "무시됨"})[s.to_sym],
+        app_knowledge_gaps_path(status: s),
+        class: "px-3 py-1.5 rounded #{@status_filter == s ? 'bg-indigo-600 text-white' : 'bg-white border border-slate-200 text-slate-700'}" %>
+  <% end %>
+</div>
+
+<%# ── 신규 기록 폼 ── %>
+<div class="rounded-lg border border-slate-200 bg-white p-4 mb-4">
+  <h2 class="font-bold text-sm mb-3">＋ 새 공백 기록 (수동 입력 / 테스트용)</h2>
+  <%= form_with url: app_knowledge_gaps_path, method: :post, local: true, class: "space-y-2" do |f| %>
+    <div class="grid grid-cols-3 gap-2">
+      <select name="channel" class="px-3 py-2 border border-slate-200 rounded text-sm">
+        <option value="chat">💬 채팅</option>
+        <option value="comment">💭 댓글</option>
+        <option value="dm">📨 DM</option>
+        <option value="in_store">🏪 매장</option>
+      </select>
+      <select name="hit_kind" class="px-3 py-2 border border-slate-200 rounded text-sm">
+        <option value="no_hit">검색 미스</option>
+        <option value="low_score">낮은 점수</option>
+        <option value="out_of_scope">범위 외</option>
+      </select>
+      <input type="text" name="score" placeholder="점수 (선택)" class="px-3 py-2 border border-slate-200 rounded text-sm" />
+    </div>
+    <input type="text" name="question" required placeholder="고객 질문 예: 시술 후 24시간 샤워 가능한가요?" class="w-full px-3 py-2 border border-slate-200 rounded text-sm" />
+    <textarea name="answer_attempted" rows="2" placeholder="소희가 시도한 답변 (선택)" class="w-full px-3 py-2 border border-slate-200 rounded text-sm"></textarea>
+    <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700">기록</button>
+  <% end %>
+</div>
+
+<%# ── 목록 ── %>
+<div class="rounded-lg border border-slate-200 bg-white p-4">
+  <h2 class="font-bold text-sm mb-3">📋 공백 목록 (<%= @gaps.size %>건)</h2>
+  <% if @gaps.empty? %>
+    <p class="text-sm text-slate-500 py-6 text-center">이 상태의 공백이 없습니다.</p>
+  <% else %>
+    <table class="w-full text-sm">
+      <thead class="text-xs text-slate-500 border-b border-slate-200">
+        <tr>
+          <th class="text-left py-2">질문</th>
+          <th class="text-left py-2">채널</th>
+          <th class="text-left py-2">유형</th>
+          <th class="text-left py-2">점수</th>
+          <th class="text-left py-2">기록 시각</th>
+          <th class="text-right py-2">액션</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @gaps.each do |g| %>
+          <tr class="border-b border-slate-100 hover:bg-slate-50">
+            <td class="py-2 pr-3"><%= anonymize_person(g.question.to_s[0, 80]) %><%= "…" if g.question.to_s.length > 80 %></td>
+            <td class="py-2"><%= { "chat" => "💬", "comment" => "💭", "dm" => "📨", "in_store" => "🏪" }[g.channel] %></td>
+            <td class="py-2"><span class="px-2 py-0.5 bg-<%= { "no_hit" => "rose", "low_score" => "amber", "out_of_scope" => "slate" }[g.hit_kind] %>-100 text-<%= { "no_hit" => "rose", "low_score" => "amber", "out_of_scope" => "slate" }[g.hit_kind] %>-700 text-xs rounded"><%= { "no_hit" => "미스", "low_score" => "낮음", "out_of_scope" => "범위 외" }[g.hit_kind] %></span></td>
+            <td class="py-2 text-xs text-slate-600"><%= g.score ? g.score.round(3) : "—" %></td>
+            <td class="py-2 text-xs text-slate-500"><%= l(g.created_at, format: :short) rescue g.created_at.strftime("%m-%d %H:%M") %></td>
+            <td class="py-2 text-right">
+              <% if g.status == "open" %>
+                <%= button_to "FAQ로 변환", app_knowledge_gaps_path + "/#{g.id}/convert", method: :post, params: { answer: "(초안 작성)" }, data: { turbo_confirm: "FAQ 초안을 만들어 연결합니다. 진행할까요?" }, class: "px-2 py-1 bg-emerald-600 text-white text-xs rounded" %>
+                <%= button_to "무시", app_knowledge_gaps_path + "/#{g.id}/dismiss", method: :post, class: "px-2 py-1 bg-slate-200 text-slate-700 text-xs rounded" %>
+              <% else %>
+                <span class="text-xs text-slate-400">종결</span>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div>
