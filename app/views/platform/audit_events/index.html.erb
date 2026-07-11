@@ -1,10 +1,50 @@
-<% content_for(:title, "audit events · — Sohee Project 플랫폼") %>
+<% content_for(:title, "감사 기록 · 운영자 콘솔") %>
 
 <header class="mb-6">
-  <h1 class="text-2xl font-bold text-slate-900">audit events ·</h1>
-  <p class="mt-1 text-sm text-slate-500">플랫폼 관리자 화면입니다. 운영 정책에 따라 데이터가 노출됩니다.</p>
+  <h1 class="text-2xl font-bold text-slate-100">감사 기록</h1>
+  <p class="mt-1 text-sm text-slate-400">사업장 운영자와 시스템이 일으킨 모든 행위 기록. 최근 200건까지 표시됩니다.</p>
 </header>
 
-<div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-  <p class="text-sm text-slate-500">이 화면은 준비 중입니다. 데이터가 표시될 영역입니다.</p>
+<div class="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
+      <tr>
+        <th class="px-4 py-2 text-left">시각</th>
+        <th class="px-4 py-2 text-left">주체</th>
+        <th class="px-4 py-2 text-left">역할</th>
+        <th class="px-4 py-2 text-left">행위</th>
+        <th class="px-4 py-2 text-left">대상</th>
+        <th class="px-4 py-2 text-left">사업장</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700">
+      <% @events.each do |event| %>
+        <tr class="hover:bg-slate-700/40">
+          <td class="px-4 py-2 text-slate-400 whitespace-nowrap"><%= event.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td class="px-4 py-2 text-slate-200">
+            <%= event.actor_user&.name || event.actor_platform_staff&.name || event.service_account&.name || "(시스템)" %>
+          </td>
+          <td class="px-4 py-2">
+            <span class="text-xs px-2 py-0.5 rounded
+              <%= case event.actor_kind
+                  when 'operator' then 'bg-amber-900/50 text-amber-200'
+                  when 'automation' then 'bg-sky-900/50 text-sky-200'
+                  when 'system' then 'bg-slate-700 text-slate-300'
+                  else 'bg-emerald-900/50 text-emerald-200'
+                  end %>">
+              <%= event.actor_kind %>
+            </span>
+          </td>
+          <td class="px-4 py-2 text-slate-200"><%= event.action %></td>
+          <td class="px-4 py-2 text-slate-400 text-xs"><%= event.resource_type %>#<%= event.resource_id %></td>
+          <td class="px-4 py-2 text-slate-400 text-xs">
+            <% if event.account %><%= event.account.name %><% else %>-<% end %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @events.empty? %>
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">기록 없음</td></tr>
+      <% end %>
+    </tbody>
+  </table>
 </div>

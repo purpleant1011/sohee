@@ -1,0 +1,84 @@
+<% content_for(:title, "안전 기록 · 운영자 콘솔") %>
+
+<header class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-100">안전 기록</h1>
+  <p class="mt-1 text-sm text-slate-400">소희가 발행·응대 전에 거친 안전 점검 결과. 의심 신호는 즉시 확인이 필요합니다.</p>
+</header>
+
+<div class="grid grid-cols-3 gap-4 mb-6">
+  <div class="bg-rose-900/30 border border-rose-700 rounded-lg px-4 py-3">
+    <div class="text-xs text-rose-300">최근 7일 차단</div>
+    <div class="text-2xl font-bold text-rose-200"><%= @stats[:blocked_7d] %></div>
+  </div>
+  <div class="bg-amber-900/30 border border-amber-700 rounded-lg px-4 py-3">
+    <div class="text-xs text-amber-300">최근 7일 사람 확인 필요</div>
+    <div class="text-2xl font-bold text-amber-200"><%= @stats[:needs_review_7d] %></div>
+  </div>
+  <div class="bg-emerald-900/30 border border-emerald-700 rounded-lg px-4 py-3">
+    <div class="text-xs text-emerald-300">최근 7일 통과</div>
+    <div class="text-2xl font-bold text-emerald-200"><%= @stats[:passed_7d] %></div>
+  </div>
+</div>
+
+<div class="mb-4 flex gap-2 text-sm">
+  <% %w[all blocked needs_review passed].each do |f| %>
+    <a href="?filter=<%= f %>"
+       class="px-3 py-1 rounded <%= @filter == f ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600' %>">
+      <%= case f
+          when 'blocked' then '차단됨'
+          when 'needs_review' then '확인 필요'
+          when 'passed' then '통과'
+          else '전체'
+          end %>
+    </a>
+  <% end %>
+</div>
+
+<div class="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
+      <tr>
+        <th class="px-4 py-2 text-left">시각</th>
+        <th class="px-4 py-2 text-left">사업장</th>
+        <th class="px-4 py-2 text-left">단계</th>
+        <th class="px-4 py-2 text-left">판정</th>
+        <th class="px-4 py-2 text-left">트리거 규칙</th>
+        <th class="px-4 py-2 text-left">메모</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700">
+      <% @safety_logs.each do |log| %>
+        <tr class="hover:bg-slate-700/40">
+          <td class="px-4 py-2 text-slate-400 whitespace-nowrap"><%= log.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td class="px-4 py-2 text-slate-200"><%= log.account&.name || "(시스템)" %></td>
+          <td class="px-4 py-2 text-slate-400 text-xs"><%= log.stage %></td>
+          <td class="px-4 py-2">
+            <span class="text-xs px-2 py-0.5 rounded
+              <%= case log.verdict
+                  when 'blocked' then 'bg-rose-900/50 text-rose-200'
+                  when 'needs_review' then 'bg-amber-900/50 text-amber-200'
+                  when 'warn' then 'bg-orange-900/50 text-orange-200'
+                  else 'bg-emerald-900/50 text-emerald-200'
+                  end %>">
+              <%= case log.verdict
+                  when 'blocked' then '차단'
+                  when 'needs_review' then '확인 필요'
+                  when 'warn' then '경고'
+                  else '통과'
+                  end %>
+            </span>
+          </td>
+          <td class="px-4 py-2 text-slate-400 text-xs">
+            <% Array(log.hits_json).first(3).each do |hit| %>
+              <span class="inline-block mr-1 px-1.5 py-0.5 bg-slate-700 rounded"><%= hit['rule'] || hit[:rule] || hit.to_s.truncate(40) %></span>
+            <% end %>
+          </td>
+          <td class="px-4 py-2 text-slate-400 text-xs"><%= log.notes&.truncate(80) %></td>
+        </tr>
+      <% end %>
+      <% if @safety_logs.empty? %>
+        <tr><td colspan="6" class="px-4 py-8 text-center text-slate-500">기록 없음</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

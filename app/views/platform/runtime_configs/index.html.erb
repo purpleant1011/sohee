@@ -1,0 +1,62 @@
+<% content_for(:title, "런타임 설정 · 운영자 콘솔") %>
+
+<header class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-100">런타임 설정</h1>
+  <p class="mt-1 text-sm text-slate-400">사업장별 AI 직원 설정 묶음(번들). 초안 → 활성화 → 롤백 흐름으로 안전하게 관리합니다.</p>
+</header>
+
+<% if @active %>
+  <div class="bg-emerald-900/30 border border-emerald-700 rounded-lg px-4 py-3 mb-6">
+    <div class="text-xs text-emerald-300">현재 활성화된 설정</div>
+    <div class="text-lg font-bold text-emerald-100"><%= @active.version %></div>
+    <div class="text-xs text-slate-400 mt-1"><%= @active.change_summary %></div>
+  </div>
+<% else %>
+  <div class="bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 mb-6 text-slate-400 text-sm">
+    활성화된 설정 없음 (초안만 존재하거나 모든 설정이 롤백됨)
+  </div>
+<% end %>
+
+<div class="bg-slate-800 border border-slate-700 rounded-lg overflow-hidden">
+  <table class="min-w-full text-sm">
+    <thead class="bg-slate-900 text-slate-400 text-xs uppercase">
+      <tr>
+        <th class="px-4 py-2 text-left">버전</th>
+        <th class="px-4 py-2 text-left">상태</th>
+        <th class="px-4 py-2 text-left">변경 요약</th>
+        <th class="px-4 py-2 text-left">생성 시각</th>
+        <th class="px-4 py-2 text-left">활성화</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-700">
+      <% @configs.each do |cfg| %>
+        <tr class="hover:bg-slate-700/40">
+          <td class="px-4 py-2 text-slate-100 font-mono"><%= cfg.version %></td>
+          <td class="px-4 py-2">
+            <span class="text-xs px-2 py-0.5 rounded
+              <%= case cfg.status
+                  when 'active' then 'bg-emerald-900/50 text-emerald-200'
+                  when 'draft' then 'bg-slate-700 text-slate-300'
+                  when 'rolled_back' then 'bg-amber-900/50 text-amber-200'
+                  else 'bg-slate-700 text-slate-400'
+                  end %>">
+              <%= case cfg.status
+                  when 'active' then '활성'
+                  when 'draft' then '초안'
+                  when 'rolled_back' then '롤백'
+                  when 'archived' then '보관'
+                  else cfg.status
+                  end %>
+            </span>
+          </td>
+          <td class="px-4 py-2 text-slate-400 text-xs"><%= cfg.change_summary %></td>
+          <td class="px-4 py-2 text-slate-400 text-xs whitespace-nowrap"><%= cfg.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+          <td class="px-4 py-2 text-slate-400 text-xs whitespace-nowrap"><%= cfg.activated_at&.strftime("%Y-%m-%d %H:%M") || "-" %></td>
+        </tr>
+      <% end %>
+      <% if @configs.empty? %>
+        <tr><td colspan="5" class="px-4 py-8 text-center text-slate-500">기록 없음</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

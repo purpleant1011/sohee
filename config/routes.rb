@@ -229,6 +229,8 @@ Rails.application.routes.draw do
     resources :inquiries
     resources :feature_flags
     resources :audit_events, only: [:index, :show]
+    resources :safety_logs, only: [:index, :show]
+    resources :runtime_configs, only: [:index, :show]
     resources :incidents
     resources :model_catalog_entries
     resources :plans
