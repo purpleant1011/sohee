@@ -27,8 +27,10 @@ Rails.application.routes.draw do
   end
 
   # 셀프 회원가입 (사업자만 가능, 14일 무료 체험 자동 부여)
-  get  "/signup", to: "signups#new", as: :signup
-  post "/signup", to: "signups#create"
+  # 셀프 회원가입 폐쇄 (2026-07-12 리뉴얼). 신규 고객사는 도입 상담 후 운영팀이 Platform::AccountsController#create로 등록한다.
+  get  "/signup", to: redirect("/contact", status: 302)
+  # POST /signup은 외부에서 호출되어도 신규 가입이 발생하지 않도록 완전히 차단한다.
+  post "/signup", to: ->(_env) { [410, { "Content-Type" => "text/html; charset=utf-8" }, ["Go away."]] }
   get  "/login",             to: "user_sessions#new",  as: :new_user_session
   post "/login",             to: "user_sessions#create", as: :user_sessions
   delete "/logout",          to: "user_sessions#destroy", as: :logout

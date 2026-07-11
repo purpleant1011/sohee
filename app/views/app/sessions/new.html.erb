@@ -5,9 +5,9 @@
   <p class="mt-1 text-sm text-slate-500">
     사업장 운영에 들어가시려면 계정 ID(이메일 또는 슬러그)와 비밀번호를 입력해 주세요.
   </p>
-  <p class="mt-2 text-sm">
+  <p class="mt-2 text-sm text-slate-600">
     아직 계정이 없으신가요?
-    <%= link_to "셀프 회원가입 후 14일 무료 체험 시작 →", signup_path,
+    <%= link_to "도입 상담 신청하기 →", public_contact_path,
         class: "inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-emerald-700 font-semibold ring-1 ring-emerald-200 hover:bg-emerald-100" %>
   </p>
 </header>
@@ -46,7 +46,7 @@
 <section class="mt-10 rounded-md border border-slate-200 bg-slate-50 px-5 py-4 text-sm text-slate-600 max-w-md">
   <p class="font-semibold text-slate-700 mb-1">안내</p>
   <ul class="list-disc list-inside space-y-1">
-    <li>아직 계정이 없으신가요? <%= link_to "셀프 회원가입 후 14일 무료 체험", signup_path, class: "text-emerald-700 underline font-semibold" %>으로 바로 시작하실 수 있습니다.</li>
+    <li>소희는 셀프 가입 서비스가 아닙니다. 운영팀과 도입 상담 후 사업장 전용 계정을 받으실 수 있습니다. <%= link_to "도입 상담 신청", public_contact_path, class: "text-emerald-700 underline font-semibold" %></li>
     <li>비밀번호를 잊어버린 경우 운영팀에 초기화 요청을 보내 주세요.</li>
     <li>로그인 후 <strong>설정 → 비밀번호 변경</strong>에서 비밀번호를 새로 설정할 수 있습니다.</li>
   </ul>

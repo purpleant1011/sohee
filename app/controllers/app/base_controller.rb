@@ -12,12 +12,12 @@ class App::BaseController < ApplicationController
     false # 추후 skip_controller로 확장
   end
 
-  # 트라이얼 만료 체크 (lazy) — 만료 시 플랜 페이지로 리다이렉트
+  # 트라이얼 만료 체크 (lazy) — 만료 시 정식 플랜 안내 페이지로 리다이렉트.
+  # 2026-07-12 리뉴얼: 셀프 가입 폐쇄로 trial_ends_at은 운영팀이 신규 고객사 등록 시점에 명시적으로 부여/해제한다.
   def enforce_trial_status!
     return unless @current_account
     return unless @current_account.trial_expired?
-    # 사업장 운영 페이지(/app) 진입만 차단. /app/plans 는 통과.
-    redirect_to app_plans_path, alert: "14일 무료 체험이 종료되었습니다. 정식 플랜을 선택해 주세요."
+    redirect_to app_plans_path, alert: "도입 체험 기간이 종료되었습니다. 운영팀과 정식 운영 플랜을 협의해 주세요."
   end
 
   def load_account_context
