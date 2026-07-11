@@ -9,8 +9,17 @@ class UserSessionsController < ApplicationController
   def create
     raw = params.require(:account_or_email).to_s.strip
     password = params.require(:password).to_s
-    account = Account.find_by(slug: raw) || User.find_by(email_address: raw)&.account
-    user = account&.owner_user
+
+    # 1) 슬러그 또는 이메일로 먼저 user를 찾는다 (이메일이 더 직접적)
+    user = User.find_by(email_address: raw)
+    # 2) 슬러그로 찾으면, 그 account의 owner를 찾는다
+    user ||= Account.find_by(slug: raw)&.owner_user
+    # 3) 그래도 안 되면, 해당 account의 role="owner" user 또는 첫 번째 user를 fallback
+    if user.nil? && (acct_fb = Account.find_by(slug: raw))
+      user = acct_fb.users.find_by(role: "owner") || acct_fb.users.first
+    end
+
+    account = user&.account
     if user&.authenticate(password)
       start_user_session!(user)
       redirect_to app_root_path, notice: "로그인되었습니다."

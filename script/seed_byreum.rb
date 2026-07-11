@@ -40,6 +40,12 @@ owner.assign_attributes(
 owner.save!
 puts "✓ Owner: #{owner.email_address} / OwnerPass!23"
 
+# 2-1. Membership (Account.owner_user fallback이 정상 동작하도록 필수)
+membership = acct.memberships.find_or_initialize_by(user: owner)
+membership.role = "owner"
+membership.save!
+puts "✓ Membership: role=owner user=#{owner.email_address}"
+
 # 3. BusinessProfile (RAG 기반)
 bp = BusinessProfile.find_or_initialize_by(account_id: acct.id)
 bp.assign_attributes(
