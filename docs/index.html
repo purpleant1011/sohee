@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>WorkMori · 사장님의 일을 기억하고 스스로 이어가는 AI 직원</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="워크모리 - 다중 고객 소상공인 AI 직원 SaaS. 사업자 자료 수집 → RAG 지식 구성 → AI 직원 설정 → 주간 업무 일정 → 콘텐츠 생성 → 검수/자동 실행 → 채널 게시·응답 → 결과 기록.">
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; margin: 0; padding: 0; background: #0f172a; color: #e2e8f0; }
+  header { padding: 2rem; text-align: center; border-bottom: 1px solid #1e293b; }
+  h1 { font-size: 2.5rem; margin: 0 0 0.5rem 0; color: #34d399; }
+  .tagline { color: #94a3b8; font-size: 1.1rem; }
+  main { max-width: 800px; margin: 0 auto; padding: 2rem; }
+  .status { background: #1e293b; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; border-left: 4px solid #34d399; }
+  .status code { background: #0f172a; padding: 0.2rem 0.5rem; border-radius: 4px; color: #fbbf24; }
+  .btn { display: inline-block; padding: 0.75rem 1.5rem; margin: 0.5rem 0.5rem 0.5rem 0; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; }
+  .btn:hover { background: #059669; }
+  .btn-secondary { background: #334155; }
+  .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin: 2rem 0; }
+  .feature { background: #1e293b; padding: 1rem; border-radius: 8px; }
+  .feature h3 { margin: 0 0 0.5rem 0; color: #34d399; font-size: 1rem; }
+  .feature p { margin: 0; font-size: 0.9rem; color: #cbd5e1; }
+  footer { text-align: center; padding: 2rem; color: #64748b; font-size: 0.85rem; border-top: 1px solid #1e293b; margin-top: 3rem; }
+</style>
+</head>
+<body>
+<header>
+  <h1>WorkMori</h1>
+  <p class="tagline">사장님의 일을 기억하고 스스로 이어가는 AI 직원</p>
+</header>
+
+<main>
+  <div class="status">
+    <strong>🚀 정식 운영 버전 — 즉시 사용 가능</strong><br>
+    백엔드 API: <code>https://mines-lightbox-seal-code.trycloudflare.com/</code> (Cloudflare Quick Tunnel)<br>
+    로컬 개발: <code>http://127.0.0.1:3001/</code> (puma pid 79300)
+  </div>
+
+  <a class="btn" href="https://mines-lightbox-seal-code.trycloudflare.com/signup">회원가입</a>
+  <a class="btn btn-secondary" href="https://mines-lightbox-seal-code.trycloudflare.com/login">로그인</a>
+  <a class="btn btn-secondary" href="https://mines-lightbox-seal-code.trycloudflare.com/pricing">가격</a>
+  <a class="btn btn-secondary" href="https://github.com/purpleant1011/workmori">GitHub</a>
+
+  <h2 style="margin-top: 2rem; color: #f1f5f9;">핵심 기능</h2>
+  <div class="features">
+    <div class="feature"><h3>🏪 다중 고객 사업장</h3><p>한 시스템에서 여러 소상공인 사업장 독립 운영. 완전한 tenant 격리.</p></div>
+    <div class="feature"><h3>🧠 RAG 지식 베이스</h3><p>사업장 자료 업로드 → 자동 청킹/임베딩 → AI 직원이 즉시 활용.</p></div>
+    <div class="feature"><h3>🤖 AI 직원 페르소나</h3><p>톤, 어휘, 금지어, handoff 규칙을 사업자별로 정의.</p></div>
+    <div class="feature"><h3>📅 주간 자동 일정</h3><p>월~일 자동 업무 생성, 검수, 발행.</p></div>
+    <div class="feature"><h3>📱 멀티 채널 발행</h3><p>Instagram, Threads, Mastodon, Naver, Kakao 공식 API.</p></div>
+    <div class="feature"><h3>🔁 자동화 규칙</h3><p>FAQ 자동응대, 주간 리포트, 콘텐츠 자동 생성.</p></div>
+    <div class="feature"><h3>📊 결과 리포트</h3><p>일간/주간 자동 리포트 + 개선 제안.</p></div>
+    <div class="feature"><h3>🔌 Hermes 연동</h3><p>외부 Hermes Agent와 자동화 규칙 결과를 주고받을 수 있음.</p></div>
+  </div>
+
+  <h2 style="color: #f1f5f9;">데모 계정</h2>
+  <ul>
+    <li><strong>사업자(스킨케어)</strong>: <code>owner@demo.example</code> / <code>OwnerPass!23</code></li>
+    <li><strong>사업자(카페)</strong>: <code>cafe-owner@demo.example</code></li>
+    <li><strong>사업자(소매)</strong>: <code>shop-owner@demo.example</code></li>
+    <li><strong>플랫폼 최고관리자</strong>: <code>platform-admin@workmori.example</code> / <code>SuperSecret!23</code></li>
+    <li><strong>플랫폼 운영자</strong>: <code>ops@workmori.example</code> / <code>OpsPass!23</code></li>
+  </ul>
+
+  <h2 style="color: #f1f5f9;">기술 스택</h2>
+  <p>Rails 8 + Hotwire (Turbo + Stimulus) + Tailwind v3 + PostgreSQL 16 + Solid Queue/Cable + ActiveStorage + Sentry + Playwright E2E (14/14 PASS).</p>
+</main>
+
+<footer>
+  © 2026 WorkMori · <a href="https://github.com/purpleant1011/workmori" style="color: #34d399;">GitHub</a> · 본 페이지는 GitHub Pages로 정적 호스팅됩니다.
+</footer>
+</body>
+</html>
