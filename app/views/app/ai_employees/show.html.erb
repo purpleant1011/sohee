@@ -1,10 +1,189 @@
-<% content_for(:title, "ai employees · .html.erb — WorkMori") %>
-
-<header class="mb-6">
-  <h1 class="text-2xl font-bold text-slate-900">ai employees · .html.erb</h1>
-  <p class="mt-1 text-sm text-slate-500">이 화면은 곧 실제 데이터로 채워집니다. 페이지를 확인한 뒤 개선 사항을 알려주세요.</p>
+<% content_for(:title, "#{@employee.name} — AI 직원") %>
+<header class="mb-6 flex justify-between items-start">
+  <div>
+    <h1 class="text-2xl font-bold"><%= @employee.name %></h1>
+    <p class="mt-1 text-sm text-slate-500">
+      <%= @employee.role_label %> · 상태 <span class="px-1.5 py-0.5 rounded <%= @employee.status == "active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600" %> text-xs"><%= @employee.status %></span>
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "설정 수정", edit_app_ai_employee_path(@employee), class: "inline-flex items-center rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+    <%= button_to "복제", duplicate_app_ai_employee_path(@employee), method: :post, class: "inline-flex items-center rounded-md border border-emerald-300 px-3 py-1.5 text-sm font-medium text-emerald-700 hover:bg-emerald-50" %>
+    <%= button_to "삭제", app_ai_employee_path(@employee), method: :delete, data: { turbo_confirm: "정말 삭제하시겠습니까?" }, class: "inline-flex items-center rounded-md border border-rose-300 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-50" %>
+  </div>
 </header>
 
-<div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-  <p class="text-sm text-slate-500">이 화면은 준비 중입니다.</p>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+  <div class="rounded-md border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold mb-3">🎭 페르소나</h3>
+    <dl class="text-sm space-y-1.5">
+      <div class="flex"><dt class="w-24 text-slate-500">톤</dt><dd><%= @employee.tone_label %></dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">존칭</dt><dd><%= @employee.honorific_label %></dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">문장 길이</dt><dd><%= @employee.sentence_length_label %></dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">친절함</dt><dd>
+        <div class="inline-block w-32 bg-slate-100 rounded h-2 align-middle mr-2"><div class="bg-emerald-500 h-2 rounded" style="width:<%= @employee.friendliness %>%"></div></div>
+        <%= @employee.friendliness %>/100
+      </dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">전문성</dt><dd>
+        <div class="inline-block w-32 bg-slate-100 rounded h-2 align-middle mr-2"><div class="bg-indigo-500 h-2 rounded" style="width:<%= @employee.expertise_level %>%"></div></div>
+        <%= @employee.expertise_level %>/100
+      </dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">능동성</dt><dd>
+        <div class="inline-block w-32 bg-slate-100 rounded h-2 align-middle mr-2"><div class="bg-amber-500 h-2 rounded" style="width:<%= @employee.proactiveness || 50 %>%"></div></div>
+        <%= @employee.proactiveness || 50 %>/100
+      </dd></div>
+    </dl>
+  </div>
+
+  <div class="rounded-md border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold mb-3">⏰ 운영 시간</h3>
+    <dl class="text-sm space-y-1.5">
+      <div class="flex"><dt class="w-24 text-slate-500">근무 요일</dt><dd><%= Array(@employee.work_days_json).join(", ") %></dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">근무 시간</dt><dd><%= @employee.work_hours_json["start"] %> ~ <%= @employee.work_hours_json["end"] %></dd></div>
+      <div class="flex"><dt class="w-24 text-slate-500">언어</dt><dd><%= @employee.preferred_locale || "ko" %></dd></div>
+    </dl>
+    <h3 class="font-semibold mt-5 mb-2">📝 자연어 지시</h3>
+    <p class="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 p-3 rounded"><%= @employee.natural_language_instructions.presence || "(지시 없음)" %></p>
+  </div>
 </div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+  <div class="rounded-md border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold mb-3">💬 응대 가능 주제</h3>
+    <div class="flex flex-wrap gap-1.5">
+      <% Array(@employee.can_answer_topics_json).each do |t| %>
+        <span class="rounded bg-emerald-100 px-2 py-0.5 text-xs text-emerald-700"><%= t %></span>
+      <% end %>
+      <% if Array(@employee.can_answer_topics_json).empty? %><span class="text-xs text-slate-400">없음</span><% end %>
+    </div>
+  </div>
+  <div class="rounded-md border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold mb-3">⚠️ 사람 인계 주제</h3>
+    <div class="flex flex-wrap gap-1.5">
+      <% Array(@employee.must_handoff_topics_json).each do |t| %>
+        <span class="rounded bg-rose-100 px-2 py-0.5 text-xs text-rose-700"><%= t %></span>
+      <% end %>
+      <% if Array(@employee.must_handoff_topics_json).empty? %><span class="text-xs text-slate-400">없음</span><% end %>
+    </div>
+  </div>
+</div>
+
+<div class="rounded-md border border-slate-200 bg-white p-5 mb-8">
+  <h3 class="font-semibold mb-3">💬 어휘 / 금지어</h3>
+  <div class="grid grid-cols-2 gap-3 text-sm">
+    <div>
+      <p class="text-xs text-slate-500 mb-1">추천 어휘</p>
+      <div class="flex flex-wrap gap-1.5">
+        <% Array(@employee.vocabulary_phrases_json).each do |t| %><span class="rounded bg-indigo-100 px-2 py-0.5 text-xs text-indigo-700"><%= t %></span><% end %>
+        <% if Array(@employee.vocabulary_phrases_json).empty? %><span class="text-xs text-slate-400">없음</span><% end %>
+      </div>
+    </div>
+    <div>
+      <p class="text-xs text-slate-500 mb-1">금지어</p>
+      <div class="flex flex-wrap gap-1.5">
+        <% Array(@employee.forbidden_phrases_json).each do |t| %><span class="rounded bg-slate-100 px-2 py-0.5 text-xs text-slate-700 line-through"><%= t %></span><% end %>
+        <% if Array(@employee.forbidden_phrases_json).empty? %><span class="text-xs text-slate-400">없음</span><% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# 페르소나 미리보기 + 테스트 메시지 영역 %>
+<div id="test-result" class="rounded-md border-2 border-emerald-300 bg-emerald-50 p-5 mb-8">
+  <h3 class="font-semibold mb-3">🧪 페르소나 미리보기 / 테스트</h3>
+  <p class="text-xs text-slate-600 mb-3">사장님이 직접 메시지를 입력해보기 전에, AI 직원이 어떻게 응답할지 미리 확인하세요.</p>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <p class="text-sm font-medium mb-2">📋 샘플 3가지 응답</p>
+      <%= link_to "샘플 응답 생성 →", preview_persona_app_ai_employee_path(@employee), class: "inline-flex items-center rounded-md bg-white border border-slate-300 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50" %>
+    </div>
+    <div>
+      <p class="text-sm font-medium mb-2">✉️ 직접 메시지로 테스트</p>
+      <%= form_with url: test_message_app_ai_employee_path(@employee), method: :post, local: true, class: "flex gap-2" do %>
+        <input type="text" name="message" placeholder="예: 가격 얼마예요?" class="flex-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm" required>
+        <button type="submit" class="rounded-md bg-emerald-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-emerald-700">테스트</button>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @test_result %>
+    <div class="mt-4 rounded-md border border-slate-200 bg-white p-4">
+      <p class="text-xs font-medium mb-2"><%= @test_result[:notice] %></p>
+      <pre class="text-xs text-slate-700 whitespace-pre-wrap font-sans"><%= @test_result[:response] %></pre>
+    </div>
+  <% end %>
+</div>
+
+<%# 메모리 (학습 노트) %>
+<div class="rounded-md border border-slate-200 bg-white p-5 mb-8">
+  <h3 class="font-semibold mb-3">🧠 메모리 (AI 직원이 기억할 내용)</h3>
+  <p class="text-xs text-slate-500 mb-4">손님이 자주 묻는 것, 사장님이 강조하고 싶은 사항, 톤 예시 등을 자유롭게 추가하세요.</p>
+
+  <%= form_with url: add_memory_app_ai_employee_path(@employee), method: :post, local: true, class: "mb-4 flex gap-2" do %>
+    <select name="memory_kind" class="rounded-md border border-slate-300 px-3 py-1.5 text-sm">
+      <option value="notes">📝 일반 메모</option>
+      <option value="topics">📌 자주 묻는 주제</option>
+      <option value="style_examples">💬 톤 예시</option>
+    </select>
+    <input type="text" name="memory_value" placeholder="메모 내용" class="flex-1 rounded-md border border-slate-300 px-3 py-1.5 text-sm" required>
+    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700">추가</button>
+  <% end %>
+
+  <% memory = @employee.memory %>
+  <div class="space-y-3">
+    <% %w[notes topics style_examples].each do |bucket|
+         items = Array(memory[bucket])
+         label = { "notes" => "📝 일반 메모", "topics" => "📌 자주 묻는 주제", "style_examples" => "💬 톤 예시" }[bucket]
+         next if items.empty? %>
+      <div>
+        <p class="text-xs font-medium text-slate-700 mb-1"><%= label %> (<%= items.size %>)</p>
+        <ul class="space-y-1">
+          <% items.each_with_index do |item, idx| %>
+            <li class="flex items-start gap-2 text-sm bg-slate-50 rounded px-3 py-2">
+              <span class="flex-1"><%= item.is_a?(Hash) ? item["v"] : item %></span>
+              <span class="text-xs text-slate-400"><%= item.is_a?(Hash) ? item["at"]&.slice(0, 10) : "" %></span>
+              <%= button_to "×", remove_memory_app_ai_employee_path(@employee, memory_index: idx), method: :delete, class: "text-rose-600 hover:underline text-xs" %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+    <% if Array(memory["notes"]).empty? && Array(memory["topics"]).empty? && Array(memory["style_examples"]).empty? %>
+      <p class="text-xs text-slate-400">아직 메모리가 없습니다.</p>
+    <% end %>
+  </div>
+</div>
+
+<%# 자동화 규칙 / 채널 사용 통계 %>
+<div class="rounded-md border border-slate-200 bg-white p-5 mb-8">
+  <h3 class="font-semibold mb-3">📊 사용 현황</h3>
+  <div class="grid grid-cols-3 gap-4 text-center">
+    <div>
+      <p class="text-2xl font-bold text-indigo-600"><%= AutomationRule.where(ai_employee_id: @employee.id).count %></p>
+      <p class="text-xs text-slate-500">연결된 자동화 규칙</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold text-emerald-600"><%= ChannelConnection.where(ai_employee_id: @employee.id).count %></p>
+      <p class="text-xs text-slate-500">연결된 채널</p>
+    </div>
+    <div>
+      <p class="text-2xl font-bold text-amber-600"><%= AutomationExecution.where(ai_employee_id: @employee.id).count %></p>
+      <p class="text-xs text-slate-500">누적 실행</p>
+    </div>
+  </div>
+</div>
+
+<% if @versions.any? %>
+  <div class="rounded-md border border-slate-200 bg-white p-5">
+    <h3 class="font-semibold mb-3">📜 설정 변경 이력</h3>
+    <ul class="space-y-2 text-sm">
+      <% @versions.each do |v| %>
+        <li class="border-b border-slate-100 pb-2">
+          <span class="text-xs text-slate-500"><%= v.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+          · <%= v.change_summary %>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

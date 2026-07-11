@@ -50,11 +50,28 @@ Rails.application.routes.draw do
     get  "/business_profile",         to: "business_profiles#show", as: :business_profile
     get  "/business_profile/edit",    to: "business_profiles#edit", as: :edit_business_profile
     patch "/business_profile",        to: "business_profiles#update", as: nil
-    resources :ai_employees, only: [:index, :show, :edit, :update] do
-      collection { post :create_default }
+    resources :ai_employees, only: [:index, :show, :new, :create, :edit, :update, :destroy] do
+      collection do
+        post :create_default
+      end
+      member do
+        post :duplicate
+        post :test_message
+        post :add_memory
+        delete :remove_memory
+        get  :preview_persona
+      end
     end
-    get  "/knowledge",              to: "knowledge_sources#index",    as: :knowledge_sources
-    get  "/knowledge/sources/:id",  to: "knowledge_sources#show",     as: :knowledge_source
+    get  "/knowledge",                to: "knowledge_sources#index",    as: :knowledge_sources
+    get  "/knowledge/new",            to: "knowledge_sources#new",      as: :new_knowledge_source
+    post "/knowledge",                to: "knowledge_sources#create",   as: nil
+    get  "/knowledge/sources/:id",    to: "knowledge_sources#show",     as: :knowledge_source
+    get  "/knowledge/sources/:id/edit", to: "knowledge_sources#edit",   as: :edit_knowledge_source
+    patch "/knowledge/sources/:id",   to: "knowledge_sources#update",   as: nil
+    delete "/knowledge/sources/:id",  to: "knowledge_sources#destroy",  as: nil
+    post "/knowledge/sources/:id/sync", to: "knowledge_sources#sync",   as: :knowledge_source_sync
+    post "/knowledge/sources/:id/mark_failed", to: "knowledge_sources#mark_failed", as: :knowledge_source_mark_failed
+    post "/knowledge/sources/:id/reindex", to: "knowledge_sources#reindex", as: :knowledge_source_reindex
     get  "/faqs",                   to: "faqs#index",                as: :faqs
     get  "/faqs/new",               to: "faqs#new",                 as: :new_faq
     post "/faqs",                   to: "faqs#create"

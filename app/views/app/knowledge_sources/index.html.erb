@@ -1,10 +1,96 @@
-<% content_for(:title, "knowledge sources · .html.erb — WorkMori") %>
-
-<header class="mb-6">
-  <h1 class="text-2xl font-bold text-slate-900">knowledge sources · .html.erb</h1>
-  <p class="mt-1 text-sm text-slate-500">이 화면은 곧 실제 데이터로 채워집니다. 페이지를 확인한 뒤 개선 사항을 알려주세요.</p>
+<% content_for(:title, "지식 베이스 — WorkMori") %>
+<header class="mb-6 flex justify-between items-center">
+  <div>
+    <h1 class="text-2xl font-bold">📚 지식 베이스</h1>
+    <p class="mt-1 text-sm text-slate-500">AI 직원이 참고할 사업장의 자료를 등록하세요.</p>
+  </div>
+  <%= link_to "+ 자료 추가", "/app/knowledge/new", class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
 </header>
 
-<div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-  <p class="text-sm text-slate-500">이 화면은 준비 중입니다.</p>
+<div class="grid grid-cols-4 gap-3 mb-6">
+  <div class="rounded-md border border-slate-200 bg-white p-4 text-center">
+    <p class="text-2xl font-bold text-slate-900"><%= @stats[:total] %></p>
+    <p class="text-xs text-slate-500 mt-1">전체</p>
+  </div>
+  <div class="rounded-md border border-emerald-200 bg-emerald-50 p-4 text-center">
+    <p class="text-2xl font-bold text-emerald-700"><%= @stats[:ready] %></p>
+    <p class="text-xs text-emerald-600 mt-1">학습 완료</p>
+  </div>
+  <div class="rounded-md border border-amber-200 bg-amber-50 p-4 text-center">
+    <p class="text-2xl font-bold text-amber-700"><%= @stats[:processing] %></p>
+    <p class="text-xs text-amber-600 mt-1">처리 중</p>
+  </div>
+  <div class="rounded-md border border-rose-200 bg-rose-50 p-4 text-center">
+    <p class="text-2xl font-bold text-rose-700"><%= @stats[:failed] %></p>
+    <p class="text-xs text-rose-600 mt-1">실패</p>
+  </div>
 </div>
+
+<% if @sources.any? %>
+  <div class="overflow-x-auto rounded-md border border-slate-200 bg-white">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+        <tr>
+          <th class="px-3 py-2">제목</th>
+          <th class="px-3 py-2">종류</th>
+          <th class="px-3 py-2">AI 직원</th>
+          <th class="px-3 py-2">상태</th>
+          <th class="px-3 py-2">언어</th>
+          <th class="px-3 py-2">액션</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        <% @sources.each do |s| %>
+          <tr>
+            <td class="px-3 py-2"><%= link_to s.title, "/app/knowledge/sources/#{s.id}", class: "text-indigo-600 hover:underline" %></td>
+            <td class="px-3 py-2"><span class="rounded bg-slate-100 px-2 py-0.5 text-xs"><%= s.kind %></span></td>
+            <td class="px-3 py-2 text-xs"><%= s.ai_employee&.name || "(공통)" %></td>
+            <td class="px-3 py-2">
+              <% case s.status
+                 when "ready" %><span class="text-emerald-700">✓ 완료</span>
+              <% when "processing", "pending" %><span class="text-amber-700">⏳ 처리 중</span>
+              <% when "failed" %><span class="text-rose-700">✗ 실패</span>
+              <% else %><%= s.status %>
+              <% end %>
+            </td>
+            <td class="px-3 py-2 text-xs"><%= s.language || "-" %></td>
+            <td class="px-3 py-2 text-xs">
+              <%= link_to "수정", "/app/knowledge/sources/#{s.id}/edit", class: "text-indigo-600 hover:underline" %>
+              <%= button_to "삭제", "/app/knowledge/sources/#{s.id}", method: :delete, data: { turbo_confirm: "정말 삭제하시겠습니까?" }, class: "text-rose-600 hover:underline ml-2" %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% else %>
+  <div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+    <p class="text-sm text-slate-500 mb-3">아직 등록된 자료가 없습니다.</p>
+    <p class="text-xs text-slate-400 mb-4">PDF, 메뉴판, FAQ, 상품 목록, 웹페이지 URL 등을 등록하면 AI 직원이 이를 학습합니다.</p>
+    <%= link_to "+ 첫 자료 추가", "/app/knowledge/new", class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
+  </div>
+<% end %>
+
+<% if @documents.any? %>
+  <h2 class="mt-8 text-lg font-semibold mb-3">처리된 문서</h2>
+  <div class="overflow-x-auto rounded-md border border-slate-200 bg-white">
+    <table class="min-w-full divide-y divide-slate-200 text-sm">
+      <thead class="bg-slate-50 text-left text-xs font-medium uppercase tracking-wider text-slate-500">
+        <tr>
+          <th class="px-3 py-2">문서명</th>
+          <th class="px-3 py-2">소스</th>
+          <th class="px-3 py-2">처리 시각</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        <% @documents.each do |d| %>
+          <tr>
+            <td class="px-3 py-2"><%= d.title || d.id %></td>
+            <td class="px-3 py-2 text-xs"><%= d.knowledge_source_id %></td>
+            <td class="px-3 py-2 text-xs text-slate-500"><%= d.created_at.strftime("%m-%d %H:%M") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

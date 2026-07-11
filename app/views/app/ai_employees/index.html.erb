@@ -1,10 +1,73 @@
-<% content_for(:title, "ai employees · .html.erb — WorkMori") %>
-
-<header class="mb-6">
-  <h1 class="text-2xl font-bold text-slate-900">ai employees · .html.erb</h1>
-  <p class="mt-1 text-sm text-slate-500">이 화면은 곧 실제 데이터로 채워집니다. 페이지를 확인한 뒤 개선 사항을 알려주세요.</p>
+<% content_for(:title, "AI 직원 — WorkMori") %>
+<header class="mb-6 flex justify-between items-center">
+  <div>
+    <h1 class="text-2xl font-bold">AI 직원</h1>
+    <p class="mt-1 text-sm text-slate-500">사장님을 대신해 응대할 AI 직원들을 관리합니다.</p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "+ 직접 만들기", new_app_ai_employee_path, class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
+  </div>
 </header>
 
-<div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-  <p class="text-sm text-slate-500">이 화면은 준비 중입니다.</p>
+<div class="mb-8">
+  <h2 class="text-lg font-semibold mb-3">🚀 템플릿으로 빠르게 시작</h2>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+    <% AiEmployee::PERSONA_PRESETS.each do |key, preset| %>
+      <div class="rounded-lg border border-slate-200 bg-white p-4 flex flex-col">
+        <div class="text-2xl mb-2">
+          <% case key
+             when "friendly_cafe" then %>☕
+          <% when "pro_salon" then %>✂️
+          <% when "warm_cafe_owner" then %>🤝
+          <% when "expert_consultant" then %>💼
+          <% end %>
+        </div>
+        <h3 class="font-semibold text-slate-900 text-sm"><%= preset[:name] %></h3>
+        <p class="text-xs text-slate-500 mt-1 flex-1"><%= preset[:role_label] %></p>
+        <div class="mt-2 text-xs text-slate-600 space-y-0.5">
+          <div>톤: <%= preset[:tone] %></div>
+          <div>전문성: <%= preset[:expertise_level] %>/100</div>
+          <div>친절함: <%= preset[:friendliness] %>/100</div>
+        </div>
+        <%= button_to "이 템플릿으로 시작 →", create_default_app_ai_employees_path(preset: key), method: :post, class: "mt-3 text-xs font-medium text-emerald-700 hover:text-emerald-900 text-left" %>
+      </div>
+    <% end %>
+  </div>
 </div>
+
+<h2 class="text-lg font-semibold mb-3">내 AI 직원 (<%= @employees.size %>)</h2>
+
+<% if @employees.any? %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <% @employees.each do |emp| %>
+      <div class="rounded-lg border border-slate-200 bg-white p-5">
+        <div class="flex items-start justify-between mb-3">
+          <div>
+            <h3 class="font-semibold text-slate-900"><%= emp.name %></h3>
+            <p class="text-xs text-slate-500"><%= emp.role_label %></p>
+          </div>
+          <span class="text-xs px-2 py-0.5 rounded <%= emp.status == "active" ? "bg-emerald-100 text-emerald-700" : emp.status == "draft" ? "bg-slate-100 text-slate-600" : "bg-amber-100 text-amber-700" %>">
+            <%= emp.status %>
+          </span>
+        </div>
+        <div class="text-xs text-slate-600 space-y-1">
+          <div>🎭 톤: <%= emp.tone %></div>
+          <div>🧠 전문성: <%= emp.expertise_level %>/100 · 친절: <%= emp.friendliness %>/100</div>
+          <div>⏰ <%= emp.work_hours_json["start"] %> ~ <%= emp.work_hours_json["end"] %></div>
+          <div>📅 <%= Array(emp.work_days_json).size %>일/주</div>
+        </div>
+        <div class="mt-4 flex gap-2 text-xs">
+          <%= link_to "설정", app_ai_employee_path(emp), class: "text-indigo-600 hover:underline" %>
+          <%= link_to "수정", edit_app_ai_employee_path(emp), class: "text-indigo-600 hover:underline" %>
+          <%= button_to "복제", duplicate_app_ai_employee_path(emp), method: :post, class: "text-emerald-600 hover:underline" %>
+          <%= button_to "삭제", app_ai_employee_path(emp), method: :delete, data: { turbo_confirm: "정말 삭제하시겠습니까?" }, class: "text-rose-600 hover:underline ml-auto" %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="rounded-md border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+    <p class="text-sm text-slate-500 mb-3">아직 AI 직원이 없습니다.</p>
+    <p class="text-xs text-slate-400">위 템플릿에서 시작하거나, 직접 만들어보세요.</p>
+  </div>
+<% end %>

@@ -1,0 +1,95 @@
+<% content_for(:title, "지식 소스 추가 — WorkMori") %>
+<header class="mb-6">
+  <h1 class="text-2xl font-bold">📚 지식 소스 추가</h1>
+  <p class="mt-1 text-sm text-slate-500">AI 직원이 학습할 자료를 등록하세요.</p>
+</header>
+
+<%= form_with model: @source, url: "/app/knowledge", method: :post, local: true, multipart: true, class: "space-y-6 max-w-3xl" do |f| %>
+  <% if @source.errors.any? %>
+    <div class="rounded-md border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">
+      <%= @source.errors.full_messages.to_sentence %>
+    </div>
+  <% end %>
+
+  <div class="rounded-md border border-slate-200 bg-white p-6">
+    <h2 class="font-semibold mb-4">자료 종류</h2>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+      <% KnowledgeSource.validators_on(:kind).first.options[:in].each do |k| %>
+        <% case k
+           when "upload" then icon = "📄"
+           when "text" then icon = "✏️"
+           when "url" then icon = "🔗"
+           when "faq" then icon = "❓"
+           when "product" then icon = "🛍️"
+           end %>
+        <label class="border border-slate-300 rounded-md p-3 text-center cursor-pointer hover:bg-slate-50 has-[:checked]:bg-indigo-50 has-[:checked]:border-indigo-500">
+          <input type="radio" name="knowledge_source[kind]" value="<%= k %>" <%= "checked" if @source.kind == k %> class="sr-only">
+          <div class="text-2xl mb-1"><%= icon %></div>
+          <div class="text-xs font-medium"><%= k %></div>
+        </label>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="rounded-md border border-slate-200 bg-white p-6 space-y-4">
+    <h2 class="font-semibold mb-4">기본 정보</h2>
+    <div>
+      <%= f.label :title, "제목 *", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.text_field :title, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm", placeholder: "예: 2026 봄 시즌 메뉴판" %>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <%= f.label :ai_employee_id, "전담 AI 직원", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.select :ai_employee_id, [["공통 (모든 직원)", nil]] + @ai_employees.map { |e| [e.name, e.id] }, {}, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %>
+      </div>
+      <div>
+        <%= f.label :language, "언어", class: "block text-sm font-medium text-slate-700" %>
+        <%= f.select :language, [["한국어", "ko"], ["English", "en"], ["日本語", "ja"]], {}, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm" %>
+      </div>
+    </div>
+    <div>
+      <%= f.label :tags, "태그 (쉼표 구분)", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.text_field :tags, value: Array(@source.tags_json).join(", "), class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm", placeholder: "메뉴, 가격, 봄시즌" %>
+    </div>
+  </div>
+
+  <div class="rounded-md border border-slate-200 bg-white p-6 space-y-4">
+    <h2 class="font-semibold mb-4">자료 본문 / 파일</h2>
+    <div>
+      <%= f.label :content, "직접 입력 (텍스트 자료)", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.text_area :content, rows: 8, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm font-mono", placeholder: "FAQ 답변, 메뉴 설명 등을 직접 입력" %>
+    </div>
+    <div>
+      <label class="block text-sm font-medium text-slate-700">또는 파일 업로드 (PDF, DOCX, TXT, MD, CSV)</label>
+      <input type="file" name="knowledge_source[file]" accept=".pdf,.docx,.txt,.md,.csv" class="mt-1 block w-full text-sm">
+      <p class="text-xs text-slate-500 mt-1">최대 20MB · 텍스트 자동 추출 후 AI 직원이 학습합니다.</p>
+    </div>
+    <div>
+      <%= f.label :url, "또는 웹페이지 URL", class: "block text-sm font-medium text-slate-700" %>
+      <%= f.url_field :url, class: "mt-1 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm", placeholder: "https://..." %>
+    </div>
+  </div>
+
+  <div class="rounded-md border border-amber-200 bg-amber-50 p-6 space-y-3">
+    <h2 class="font-semibold mb-4 text-amber-900">⚖️ 권리 및 개인정보 확인</h2>
+    <div class="space-y-2">
+      <label class="flex items-start gap-2">
+        <%= f.check_box :rights_confirmation, class: "mt-1" %>
+        <span class="text-sm">본 자료는 사장님이 정당한 권리를 가지거나, 권리자의 동의를 받은 자료입니다. (필수)</span>
+      </label>
+      <label class="flex items-start gap-2">
+        <%= f.check_box :ai_training_allowed, class: "mt-1" %>
+        <span class="text-sm">AI 학습 및 RAG 인덱싱에 사용하는데 동의합니다.</span>
+      </label>
+      <label class="flex items-start gap-2">
+        <%= f.check_box :contains_personal_data, class: "mt-1" %>
+        <span class="text-sm">개인정보가 포함되어 있습니다 (체크 시 마스킹 처리 권장).</span>
+      </label>
+    </div>
+  </div>
+
+  <div class="flex gap-2">
+    <%= f.submit "추가", class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
+    <%= link_to "취소", "/app/knowledge", class: "inline-flex items-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+  </div>
+<% end %>

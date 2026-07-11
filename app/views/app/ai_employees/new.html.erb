@@ -4,7 +4,7 @@
   <p class="mt-1 text-sm text-slate-500">처음부터 모든 설정을 직접 정의합니다.</p>
 </header>
 
-<%= form_with model: @employee, url: app_ai_employee_path(@employee), method: :patch, local: true, class: "space-y-6 max-w-3xl" do |f| %>
+<%= form_with model: @employee, url: app_ai_employees_path, method: :post, local: true, class: "space-y-6 max-w-3xl" do |f| %>
   <% if @employee.errors.any? %>
     <div class="rounded-md border border-rose-300 bg-rose-50 p-3 text-sm text-rose-700">
       <%= @employee.errors.full_messages.to_sentence %>
@@ -107,7 +107,7 @@
   </div>
 
   <div class="flex gap-2">
-    <%= f.submit "저장", class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
+    <%= f.submit "생성", class: "inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700" %>
     <%= link_to "취소", app_ai_employees_path, class: "inline-flex items-center rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
   </div>
 <% end %>
