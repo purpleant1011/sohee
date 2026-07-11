@@ -11,13 +11,13 @@
   </div>
 </div>
 
-<%# ── 바이름이면 특별 안내 ── %>
+<%# ── 초기 파트너 매장 안내 ── %>
 <% if @is_byreum %>
   <div class="mb-4 rounded-lg border-2 border-rose-200 bg-gradient-to-r from-rose-50 to-pink-50 p-4">
     <div class="flex items-center gap-3">
       <div class="text-3xl">🌸</div>
       <div>
-        <p class="font-semibold text-rose-900">바이름 청라점 · 초기 파트너 매장</p>
+        <p class="font-semibold text-rose-900">초기 파트너 매장 · 데모 환경</p>
         <p class="text-xs text-rose-700">소희는 현재 테스트 계정에서 콘텐츠 품질을 검증 중입니다. 공식 계정 전환은 원장님 승인 후 진행됩니다.</p>
       </div>
     </div>
@@ -252,7 +252,7 @@
   <summary class="px-5 py-3 cursor-pointer text-xs font-medium text-slate-700 hover:bg-slate-200">🔧 내부 운영 정보 (사업자 계정에서만 노출 · 랜딩에는 절대 노출 안 됨)</summary>
   <div class="p-5 border-t border-slate-200 text-xs space-y-2 font-mono">
     <div><strong>백엔드:</strong> <%= @internal_info[:api_endpoints][:local] %> · <%= @internal_info[:api_endpoints][:tunnel] || "터널 미연결" %></div>
-    <div><strong>데모 계정:</strong> <%= @internal_info[:demo_accounts].values.join(", ") %></div>
+    <div><strong>데모 계정:</strong> <%= @internal_info[:demo_accounts].values.map { |v| anonymize_email(v) }.join(", ") %></div>
     <div><strong>기술 스택:</strong> <%= @internal_info[:stack] %></div>
     <div><strong>E2E 테스트:</strong> <%= @internal_info[:e2e_tests] %></div>
   </div>

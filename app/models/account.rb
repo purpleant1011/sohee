@@ -19,6 +19,8 @@ class Account < ApplicationRecord
   has_many :usage_metrics, dependent: :nullify
   has_many :cost_settings, dependent: :nullify
   has_many :reviews, dependent: :nullify
+  has_many :runtime_configs, dependent: :destroy
+  has_many :runtime_heartbeats, dependent: :destroy
   has_many :csat_responses, dependent: :destroy
   has_many :inquiries, dependent: :nullify
   has_many :publication_attempts, dependent: :nullify

@@ -1,0 +1,56 @@
+<% content_for :title, "Bundle #{@config.version} · #{@current_account.name}" %>
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">📦 런타임 번들 <%= @config.version %></h1>
+    <p class="text-xs text-slate-500 mt-0.5">
+      checksum <%= @config.checksum %> · 생성 <%= l @config.created_at, format: :short %>
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "← 목록으로", app_runtime_configs_path, class: "px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded text-sm" %>
+    <% if @config.draft? %>
+      <%= button_to "✅ 활성화", activate_app_runtime_config_path(@config), method: :post, data: { turbo_confirm: "이 초안을 활성화하시겠습니까?" }, class: "px-3 py-1.5 bg-emerald-600 text-white rounded text-sm font-medium hover:bg-emerald-700" %>
+    <% elsif @config.active? %>
+      <%= button_to "⏪ 롤백", rollback_app_runtime_config_path(@config), method: :post, data: { turbo_confirm: "이 활성 번들을 롤백하시겠습니까?" }, class: "px-3 py-1.5 bg-amber-600 text-white rounded text-sm font-medium hover:bg-amber-700" %>
+    <% end %>
+  </div>
+</div>
+
+<%# ── 상태 요약 카드 ── %>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">상태</div>
+    <div class="text-lg font-bold mt-1"><%= @config.status %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">활성화 시각</div>
+    <div class="text-sm font-medium mt-1"><%= @config.activated_at ? l(@config.activated_at, format: :short) : "—" %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">롤백 시각</div>
+    <div class="text-sm font-medium mt-1"><%= @config.rolled_back_at ? l(@config.rolled_back_at, format: :short) : "—" %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">Heartbeat 24h</div>
+    <div class="text-lg font-bold mt-1"><%= @heartbeat_summary[:count] %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">Open jobs</div>
+    <div class="text-lg font-bold mt-1"><%= @heartbeat_summary[:last]&.open_jobs || 0 %></div>
+  </div>
+</div>
+
+<%# ── 변경 메모 ── %>
+<% if @config.change_summary.present? %>
+  <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-3">
+    <strong class="text-sm text-slate-900">📝 운영 메모</strong>
+    <pre class="text-xs text-slate-700 mt-1 whitespace-pre-wrap font-sans"><%= @config.change_summary %></pre>
+  </div>
+<% end %>
+
+<%# ── Bundle JSON ── %>
+<h2 class="font-bold text-lg mb-3">📋 Bundle (JSON)</h2>
+<div class="rounded-lg border border-slate-200 bg-slate-900 text-slate-100 p-4 overflow-x-auto">
+<pre class="text-xs font-mono whitespace-pre"><%= JSON.pretty_generate(@config.bundle_json) %></pre>
+</div>

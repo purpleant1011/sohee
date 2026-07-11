@@ -24,9 +24,9 @@
   <div class="grid grid-cols-2 gap-4 text-sm">
     <div><span class="text-slate-500">상호</span><div class="font-medium"><%= @business_profile.legal_name %></div></div>
     <div><span class="text-slate-500">업종</span><div class="font-medium"><%= @business_profile.industry_code&.humanize %></div></div>
-    <div><span class="text-slate-500">대표자</span><div class="font-medium"><%= @business_profile.owner_name %></div></div>
-    <div><span class="text-slate-500">지역</span><div class="font-medium"><%= @business_profile.region_label %></div></div>
-    <div class="col-span-2"><span class="text-slate-500">주소</span><div class="font-medium"><%= @business_profile.address %></div></div>
+    <div><span class="text-slate-500">대표자</span><div class="font-medium"><%= anonymize_person(@business_profile.owner_name) %></div></div>
+    <div><span class="text-slate-500">지역</span><div class="font-medium"><%= anonymize_region(@business_profile.region_label) %></div></div>
+    <div class="col-span-2"><span class="text-slate-500">주소</span><div class="font-medium"><%= anonymize_region(@business_profile.address) %></div></div>
   </div>
 </div>
 

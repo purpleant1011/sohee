@@ -1,0 +1,118 @@
+<% content_for :title, "Hermes Runtime · #{@current_account.name}" %>
+
+<div class="flex items-center justify-between mb-4">
+  <div>
+    <h1 class="text-2xl font-bold">⚙️ Hermes Runtime 설정</h1>
+    <p class="text-xs text-slate-500 mt-0.5">
+      사업장·페르소나·채널·FAQ·자동화를 하나의 <strong>번들(bundle)</strong>로 직렬화하고 버전·롤백을 관리합니다.
+    </p>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "+ 새 초안 생성", new_app_runtime_config_path, class: "px-4 py-2 bg-indigo-600 text-white rounded text-sm font-medium hover:bg-indigo-700" %>
+  </div>
+</div>
+
+<%# ── 24시간 상태 카드 ── %>
+<% hb = @heartbeat_summary %>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+  <div class="rounded-lg border <%= hb[:count] > 0 && hb[:down] == 0 ? 'border-emerald-300 bg-emerald-50' : 'border-slate-200 bg-white' %> p-3">
+    <div class="text-xs text-slate-500">Heartbeat 24h</div>
+    <div class="text-2xl font-bold mt-1"><%= hb[:count] %></div>
+  </div>
+  <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+    <div class="text-xs text-emerald-700">OK</div>
+    <div class="text-2xl font-bold mt-1 text-emerald-800"><%= hb[:ok] %></div>
+  </div>
+  <div class="rounded-lg border border-amber-200 bg-amber-50 p-3">
+    <div class="text-xs text-amber-700">Degraded</div>
+    <div class="text-2xl font-bold mt-1 text-amber-800"><%= hb[:degraded] %></div>
+  </div>
+  <div class="rounded-lg border border-rose-200 bg-rose-50 p-3">
+    <div class="text-xs text-rose-700">Down</div>
+    <div class="text-2xl font-bold mt-1 text-rose-800"><%= hb[:down] %></div>
+  </div>
+  <div class="rounded-lg border border-slate-200 bg-white p-3">
+    <div class="text-xs text-slate-500">활성 버전</div>
+    <div class="text-2xl font-bold mt-1"><%= @active&.version || "—" %></div>
+    <% if @active %>
+      <div class="text-xs text-slate-500 mt-0.5">checksum <%= @active.checksum %></div>
+    <% end %>
+  </div>
+</div>
+
+<%# ── 활성 번들 미리보기 ── %>
+<% if @active %>
+  <div class="mb-6 rounded-lg border-2 border-emerald-300 bg-emerald-50 p-5">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <h2 class="font-bold text-lg text-emerald-900">✅ 활성 번들 — <%= @active.version %></h2>
+        <p class="text-xs text-emerald-700">
+          활성화: <%= l @active.activated_at, format: :short %> ·
+          checksum <%= @active.checksum %>
+        </p>
+      </div>
+      <%= button_to "⏪ 이 버전 롤백", rollback_app_runtime_config_path(@active), method: :post, data: { turbo_confirm: "이 활성 버전을 롤백하시겠습니까? 직전 active로 복원됩니다." }, class: "px-3 py-1.5 bg-amber-600 text-white rounded text-xs font-medium hover:bg-amber-700" %>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+      <% bundle = @active.bundle_json %>
+      <div class="bg-white/70 rounded p-2"><strong>페르소나</strong><br><%= bundle.dig("persona", "name") || "—" %><br><span class="text-slate-500"><%= bundle.dig("persona", "key") %></span></div>
+      <div class="bg-white/70 rounded p-2"><strong>채널</strong><br><%= Array(bundle["channels"]).size %>개 연결</div>
+      <div class="bg-white/70 rounded p-2"><strong>FAQ</strong><br><%= Array(bundle["faqs"]).size %>개 활성</div>
+      <div class="bg-white/70 rounded p-2"><strong>자동화</strong><br><%= bundle["automation_rules"].to_i %>개 활성</div>
+    </div>
+    <%= link_to "상세 보기 →", app_runtime_config_path(@active), class: "inline-block mt-3 text-xs text-emerald-700 hover:underline" %>
+  </div>
+<% else %>
+  <div class="mb-6 rounded-lg border-2 border-dashed border-amber-300 bg-amber-50 p-5 text-center">
+    <p class="text-amber-900">⚠️ 아직 활성 번들이 없습니다. 새 초안을 만들어 활성화하세요.</p>
+  </div>
+<% end %>
+
+<%# ── 번들 히스토리 ── %>
+<h2 class="font-bold text-lg mb-3">📜 번들 히스토리 (최근 30건)</h2>
+<div class="bg-white border border-slate-200 rounded-lg overflow-hidden">
+  <table class="min-w-full divide-y divide-slate-200 text-sm">
+    <thead class="bg-slate-50">
+      <tr>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">버전</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">상태</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">체크섬</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">생성</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">메모</th>
+        <th class="px-3 py-2 text-left text-xs font-medium text-slate-500">액션</th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-slate-100">
+      <% @configs.each do |cfg| %>
+        <tr>
+          <td class="px-3 py-2 font-mono"><%= link_to cfg.version, app_runtime_config_path(cfg), class: "text-indigo-700 hover:underline" %></td>
+          <td class="px-3 py-2">
+            <% badge = case cfg.status
+                       when "active" then "bg-emerald-100 text-emerald-800"
+                       when "draft" then "bg-slate-100 text-slate-700"
+                       when "archived" then "bg-amber-100 text-amber-800"
+                       when "rolled_back" then "bg-rose-100 text-rose-800"
+                       else "bg-slate-100 text-slate-600" end %>
+            <span class="px-2 py-0.5 rounded text-xs <%= badge %>"><%= cfg.status %></span>
+          </td>
+          <td class="px-3 py-2 font-mono text-xs"><%= cfg.checksum %></td>
+          <td class="px-3 py-2 text-xs text-slate-500"><%= l cfg.created_at, format: :short %></td>
+          <td class="px-3 py-2 text-xs text-slate-600"><%= cfg.change_summary.to_s.truncate(50) %></td>
+          <td class="px-3 py-2 text-xs">
+            <% if cfg.draft? %>
+              <%= button_to "활성화", activate_app_runtime_config_path(cfg), method: :post, class: "text-emerald-700 hover:underline mr-2" %>
+              <%= button_to "삭제", app_runtime_config_path(cfg), method: :delete, data: { turbo_confirm: "정말 삭제?" }, class: "text-rose-700 hover:underline" %>
+            <% elsif cfg.status == "rolled_back" %>
+              <%= button_to "삭제", app_runtime_config_path(cfg), method: :delete, data: { turbo_confirm: "정말 삭제?" }, class: "text-rose-700 hover:underline" %>
+            <% else %>
+              <span class="text-slate-400">—</span>
+            <% end %>
+          </td>
+        </tr>
+      <% end %>
+      <% if @configs.empty? %>
+        <tr><td colspan="6" class="px-3 py-8 text-center text-slate-500">아직 번들이 없습니다.</td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_07_11_055802) do
+ActiveRecord::Schema[8.0].define(version: 2026_07_11_060500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -990,6 +990,44 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_11_055802) do
     t.index ["referrer_account_id"], name: "index_referrals_on_referrer_account_id"
   end
 
+  create_table "runtime_configs", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "version", default: "v0", null: false
+    t.string "status", default: "draft", null: false
+    t.string "checksum", default: "", null: false
+    t.json "bundle_json", default: {}, null: false
+    t.text "change_summary"
+    t.bigint "activated_by_id"
+    t.datetime "activated_at"
+    t.bigint "rolled_back_by_id"
+    t.datetime "rolled_back_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "created_at"], name: "index_runtime_configs_on_account_id_and_created_at"
+    t.index ["account_id", "status"], name: "index_runtime_configs_on_account_id_and_status"
+    t.index ["account_id", "version"], name: "index_runtime_configs_on_account_id_and_version"
+    t.index ["account_id"], name: "index_runtime_configs_on_account_id"
+    t.index ["activated_by_id"], name: "index_runtime_configs_on_activated_by_id"
+    t.index ["rolled_back_by_id"], name: "index_runtime_configs_on_rolled_back_by_id"
+  end
+
+  create_table "runtime_heartbeats", force: :cascade do |t|
+    t.bigint "runtime_config_id"
+    t.bigint "account_id", null: false
+    t.string "source", default: "sohee", null: false
+    t.string "status", default: "ok", null: false
+    t.integer "open_jobs", default: 0
+    t.integer "failed_jobs_24h", default: 0
+    t.json "meta_json", default: {}
+    t.datetime "checked_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "checked_at"], name: "index_runtime_heartbeats_on_account_id_and_checked_at"
+    t.index ["account_id"], name: "index_runtime_heartbeats_on_account_id"
+    t.index ["runtime_config_id", "checked_at"], name: "index_runtime_heartbeats_on_runtime_config_id_and_checked_at"
+    t.index ["runtime_config_id"], name: "index_runtime_heartbeats_on_runtime_config_id"
+  end
+
   create_table "safety_logs", force: :cascade do |t|
     t.bigint "account_id"
     t.bigint "content_item_id"
@@ -1389,6 +1427,11 @@ ActiveRecord::Schema[8.0].define(version: 2026_07_11_055802) do
   add_foreign_key "referral_rewards", "referrals"
   add_foreign_key "referrals", "accounts", column: "referrer_account_id"
   add_foreign_key "referrals", "referral_links"
+  add_foreign_key "runtime_configs", "accounts"
+  add_foreign_key "runtime_configs", "users", column: "activated_by_id"
+  add_foreign_key "runtime_configs", "users", column: "rolled_back_by_id"
+  add_foreign_key "runtime_heartbeats", "accounts"
+  add_foreign_key "runtime_heartbeats", "runtime_configs"
   add_foreign_key "service_accounts", "accounts"
   add_foreign_key "services", "accounts"
   add_foreign_key "sessions", "users"

@@ -174,6 +174,17 @@ Rails.application.routes.draw do
     get  "/analytics/export",          to: "analytics#export",          as: :export_analytics
     get  "/csat/new",                  to: "csat#new",                  as: :new_csat
     resources :csat, only: [:create]
+
+    # Hermes Runtime Configuration (bundle + heartbeat + version + rollback)
+    resources :runtime_configs do
+      member do
+        post :activate
+        post :rollback
+      end
+      collection do
+        post :heartbeat
+      end
+    end
   end
 
   # Platform admin
@@ -233,6 +244,18 @@ Rails.application.routes.draw do
     resources :content_items
     resources :automation_executions
     resources :publications
+
+    # Hermes Runtime Configuration Bundle + Heartbeat API
+    get  "/runtime_configs/current",                   to: "runtime_configs#current"
+    resources :runtime_configs, only: [:create] do
+      member do
+        post :activate
+        post :rollback
+      end
+      collection do
+        post :heartbeat
+      end
+    end
   end
 
   # Errors

@@ -1,4 +1,12 @@
 ko:
+  time:
+    formats:
+      short: "%Y-%m-%d %H:%M"
+      long: "%Y-%m-%d %H:%M:%S %z"
+  date:
+    formats:
+      short: "%Y-%m-%d"
+      long: "%Y년 %m월 %d일"
   activerecord:
     errors:
       messages:

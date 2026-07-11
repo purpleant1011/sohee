@@ -54,7 +54,7 @@ class App::DashboardsController < App::BaseController
     # 자동화 실패/주의
     @automations_needs_attention = @current_account.automation_executions.where(state: "failed").where("created_at >= ?", 7.days.ago).limit(5)
 
-    # 바이름이면 special 강조
+    # 초기 파트너 매장 demo 분기
     @is_byreum = @current_account.slug == "byreum-cheongna"
   end
 
@@ -66,7 +66,7 @@ class App::DashboardsController < App::BaseController
         tunnel: ENV["TUNNEL_URL"]
       }.compact,
       demo_accounts: {
-        byreum_owner: "byreum@soheeproject.example",
+        initial_partner: "partner@soheeproject.example",
         demo_skin: "owner@demo.example",
         demo_cafe: "cafe-owner@demo.example",
         demo_shop: "shop-owner@demo.example"
