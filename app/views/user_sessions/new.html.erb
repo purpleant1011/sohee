@@ -33,7 +33,6 @@
 
     <div class="flex items-center justify-between text-sm">
       <a href="<%= new_user_magic_link_path %>" class="text-indigo-600 hover:underline">매직 링크로 로그인</a>
-      <a href="<%= new_signup_path %>" class="text-slate-500 hover:underline">회원가입</a>
     </div>
 
     <%= f.submit "로그인",
@@ -41,7 +40,7 @@
   <% end %>
 
   <div class="mt-10 rounded-md bg-slate-50 border border-slate-200 px-4 py-3 text-xs text-slate-600">
-    <p class="font-semibold text-slate-700 mb-1">데모 계정 안내</p>
-    <p>데모용 dev 로그인은 <code class="rounded bg-slate-200 px-1 py-0.5">POST /dev_login/business</code>에 이메일 <code class="rounded bg-slate-200 px-1 py-0.5">owner@demo.example</code> 로 호출하세요.</p>
+    <p class="font-semibold text-slate-700 mb-1">운영 안내</p>
+    <p>소희 프로젝트는 운영자 초대 기반 계정만 사용합니다. 접근 권한이 없으시면 운영팀에 문의해주세요.</p>
   </div>
 </section>

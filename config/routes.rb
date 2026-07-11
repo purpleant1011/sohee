@@ -26,9 +26,9 @@ Rails.application.routes.draw do
     get  "/thanks",  to: "public/contacts#thanks", as: :public_contact_thanks
   end
 
-  # Account auth
-  get  "/signup",            to: "signups#new",        as: :new_signup
-  post "/signup",            to: "signups#create",     as: :signups
+  # 셀프 회원가입 비활성화: 공개 사이트에서는 "초기 도입 상담 신청"만 안내
+  # 운영자 초대 기반 가입만 허용 (/signup_invitations/...)
+  match "/signup", via: [:get, :post], to: redirect("/contact")
   get  "/login",             to: "user_sessions#new",  as: :new_user_session
   post "/login",             to: "user_sessions#create", as: :user_sessions
   delete "/logout",          to: "user_sessions#destroy", as: :logout

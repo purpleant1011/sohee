@@ -5,16 +5,24 @@
     사장님이 설정한 지식·톤·일정을 기억하고, 자동으로 초안을 만들고, 사람 검수를 거쳐 채널로 발송합니다.
   </p>
   <div class="mt-6 flex gap-3">
-    <%= link_to "데모 시작하기", new_signup_path, class: "px-5 py-3 rounded-lg bg-emerald-600 text-white font-semibold" %>
-    <%= link_to "제품 자세히 보기", public_product_ai_employee_path, class: "px-5 py-3 rounded-lg bg-white border" %>
+    <%= link_to "초기 도입 상담 신청하기", public_contact_path,
+          class: "px-5 py-3 rounded-lg bg-pink-600 text-white font-semibold hover:bg-pink-700" %>
+    <%= link_to "AI 직원 자세히 보기", public_product_ai_employee_path,
+          class: "px-5 py-3 rounded-lg bg-white border border-slate-300" %>
   </div>
 </section>
 
 <section class="py-10 grid grid-cols-1 md:grid-cols-3 gap-4">
-  <% @stats.each do |label, val| %>
-    <div class="p-5 rounded-lg bg-white shadow-sm">
-      <div class="text-3xl font-bold text-slate-900"><%= val[0] %></div>
-      <div class="text-sm text-slate-500 mt-1"><%= val[1] %></div>
+  <% if @stats.present? %>
+    <% @stats.each do |label, val| %>
+      <div class="p-5 rounded-lg bg-white shadow-sm">
+        <div class="text-3xl font-bold text-slate-900"><%= val[0] %></div>
+        <div class="text-sm text-slate-500 mt-1"><%= val[1] %></div>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="md:col-span-3 p-6 rounded-lg bg-white shadow-sm border border-slate-200">
+      <p class="text-slate-700">초기 파트너 운영 결과를 정리 중입니다. 정식 수치는 검증 완료 후 공개됩니다.</p>
     </div>
   <% end %>
 </section>
@@ -22,7 +30,7 @@
 <section class="py-10">
   <h2 class="text-2xl font-semibold text-slate-900 mb-6">이렇게 작동합니다</h2>
   <ol class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <li class="p-5 bg-white rounded-lg"><div class="text-sm text-slate-500">STEP 1</div><div class="font-semibold mt-1">업소 자료 수집</div><p class="text-sm text-slate-600 mt-2">운영자가 초기 설정 (영업시간, 서비스, FAQ, 약관).</p></li>
+    <li class="p-5 bg-white rounded-lg"><div class="text-sm text-slate-500">STEP 1</div><div class="font-semibold mt-1">매장 자료 수집</div><p class="text-sm text-slate-600 mt-2">운영자가 초기 설정 (영업시간, 서비스, FAQ, 약관).</p></li>
     <li class="p-5 bg-white rounded-lg"><div class="text-sm text-slate-500">STEP 2</div><div class="font-semibold mt-1">AI 직원 설정</div><p class="text-sm text-slate-600 mt-2">톤 / 품위 / 금지어 / 자동화 임계값 조정.</p></li>
     <li class="p-5 bg-white rounded-lg"><div class="text-sm text-slate-500">STEP 3</div><div class="font-semibold mt-1">자동 실행</div><p class="text-sm text-slate-600 mt-2">일정에 맞춰 초안 → 검수 → 채널 게시 → 결과 보고.</p></li>
   </ol>

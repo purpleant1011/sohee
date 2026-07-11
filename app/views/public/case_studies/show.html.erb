@@ -1,17 +1,8 @@
 <% content_for :title, @case_study[:industry] %>
 <section class="py-12">
   <div class="text-xs text-slate-500"><%= @case_study[:industry] %> · <%= @case_study[:client_role] %></div>
-  <h1 class="mt-2 text-4xl font-bold text-slate-900"><%= @case_study[:slug] %></h1>
+  <h1 class="mt-2 text-4xl font-bold text-slate-900"><%= @case_study[:industry] %> 운영 사례</h1>
   <p class="mt-4 text-lg text-slate-700 max-w-3xl"><%= @case_study[:summary] %></p>
-</section>
-
-<section class="py-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-  <% @case_study[:metrics].each do |m| %>
-    <div class="p-4 rounded-lg bg-white shadow-sm text-center">
-      <div class="text-2xl font-bold text-slate-900"><%= m[:value] %></div>
-      <div class="text-sm text-slate-500 mt-1"><%= m[:label] %></div>
-    </div>
-  <% end %>
 </section>
 
 <section class="py-8 max-w-3xl space-y-4">
@@ -24,7 +15,7 @@
 </section>
 
 <section class="py-8 max-w-3xl">
-  <div class="p-6 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
-    ※ 본 사례는 운영자 검수 후 비식별화된 가상 자료입니다. 실제 이름·수치는 공개 동의를 받은 범위 내에서만 사용됩니다.
+  <div class="p-6 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 text-sm">
+    ※ 본 사례는 검증 진행 중인 운영 흐름을 익명화한 자료입니다. 검증 완료 전 수치·실명·지역명은 공개하지 않습니다.
   </div>
 </section>

@@ -19,15 +19,10 @@
       <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
         <%= link_to public_root_path, class: "flex items-center gap-2" do %>
           <span class="font-bold text-xl text-slate-900"><%= brand.brand_name %></span>
-          <% if brand.brand_provisional %>
-            <span class="text-xs px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">가칭</span>
-          <% end %>
         <% end %>
         <nav class="flex gap-5 text-sm text-slate-700">
           <%= link_to "AI 직원",      public_product_ai_employee_path %>
-          <%= link_to "업종별",       industries_path %>
           <%= link_to "고객 사례",    public_case_studies_path %>
-          <%= link_to "요금제",       public_pricing_path %>
           <%= link_to "문의",         public_contact_path %>
           <% if signed_in? %>
             <%= link_to "관리자",      app_root_path, class: "font-semibold text-emerald-700" %>
@@ -37,18 +32,12 @@
             <%= link_to "로그아웃",    platform_logout_path, method: :delete, data: { turbo_method: :delete } %>
           <% else %>
             <%= link_to "로그인",      new_user_session_path %>
-            <%= link_to "회원가입",    new_signup_path, class: "px-3 py-1 rounded bg-emerald-600 text-white" %>
           <% end %>
         </nav>
       </div>
     </header>
 
     <main class="max-w-6xl mx-auto px-4 py-8">
-      <% if brand.brand_provisional %>
-        <div class="provisional-banner mb-4 p-3 text-sm rounded bg-amber-100 text-amber-900">
-          <strong>개발 환경 안내:</strong> 브랜드명/도메인/상표는 가칭 상태입니다. <code>config/branding.yml</code>에서 교체하세요.
-        </div>
-      <% end %>
       <% if notice.present? %>
         <div class="mb-4 p-3 rounded bg-emerald-100 text-emerald-900"><%= notice %></div>
       <% end %>
@@ -60,13 +49,10 @@
 
     <footer class="mt-12 border-t border-slate-200 bg-white">
       <div class="max-w-6xl mx-auto px-4 py-6 text-sm text-slate-500 flex flex-wrap gap-4 justify-between">
-        <div>© <%= Date.today.year %> <%= brand.brand_name %>. <%= brand.brand_provisional ? "(가칭)" : "" %></div>
+        <div>© <%= Date.today.year %> <%= brand.brand_name %>.</div>
         <nav class="flex gap-4">
           <%= link_to "이용약관", public_page_path(slug: "terms") %>
           <%= link_to "개인정보처리방침", public_page_path(slug: "privacy") %>
-          <%= link_to "마케팅 수신 동의", public_page_path(slug: "marketing") %>
-          <%= link_to "쿠키", public_page_path(slug: "cookies") %>
-          <%= link_to "데이터 정책", public_page_path(slug: "data-policy") %>
         </nav>
       </div>
     </footer>

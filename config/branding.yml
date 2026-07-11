@@ -1,30 +1,26 @@
 # Brand configuration.  Switch out to rebrand the whole site.
 #
-# 프로젝트명: "소희 프로젝트" (가칭)
-# 소희 = AI 직원 페르소나. 사장님이 자신의 AI 직원 페르소나를 설정할 수 있는 관리자 페이지.
+# 프로젝트명: "소희 프로젝트"
+# 소희 = AI 직원 페르소나. 운영팀이 세팅하고, 사장님은 결과를 확인합니다.
 development:
   brand_name: "소희 프로젝트"
   brand_name_en: "Sohee Project"
-  brand_tagline: "AI 직원 소희가 사장님의 일을 기억하고 스스로 이어갑니다"
-  brand_provisional: true
+  brand_tagline: "시술은 원장님이, 홍보·문의응대는 AI 직원 소희가 합니다"
+  brand_provisional: false
   ai_default_name: "소희"
   ai_default_role: "AI 직원 (기본)"
-  contact_email: "hello@soheeproject.example"
+  contact_email: "" # 공개 노출 금지 — 운영팀 내부 회신용 별도 채널 사용
   contact_phone: ""
-  pricing:
-    beta_monthly_krw: 300000
-    beta_deposit_krw: 500000
+  pricing: {} # 가격 비공개 — 운영 안정화 후 별도 공개
   social: {}
 production:
   brand_name: "소희 프로젝트"
   brand_name_en: "Sohee Project"
-  brand_tagline: "AI 직원 소희가 사장님의 일을 기억하고 스스로 이어갑니다"
+  brand_tagline: "시술은 원장님이, 홍보·문의응대는 AI 직원 소희가 합니다"
   brand_provisional: false
   ai_default_name: "소희"
   ai_default_role: "AI 직원 (기본)"
-  contact_email: "hello@soheeproject.example"
+  contact_email: "" # 공개 노출 금지
   contact_phone: ""
-  pricing:
-    beta_monthly_krw: 300000
-    beta_deposit_krw: 500000
+  pricing: {} # 가격 비공개
   social: {}
