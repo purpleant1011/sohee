@@ -24,6 +24,50 @@
   </div>
 <% end %>
 
+<%# ── 셋업 준비도 (#setup 앵커) ── %>
+<% if @setup_readiness %>
+  <% sr = @setup_readiness %>
+  <div id="setup" class="mb-6 rounded-lg border-2 <%= sr[:ready] ? 'border-emerald-300 bg-emerald-50' : 'border-amber-300 bg-amber-50' %> p-5">
+    <div class="flex items-center justify-between mb-3">
+      <div>
+        <h2 class="font-bold text-lg <%= sr[:ready] ? 'text-emerald-900' : 'text-amber-900' %>">
+          <%= sr[:ready] ? '✅' : '🛠️' %> 셋업 준비도
+        </h2>
+        <p class="text-xs <%= sr[:ready] ? 'text-emerald-700' : 'text-amber-700' %> mt-0.5">
+          원장님이 승인한 톤·문구·금지어 기준으로, 5회 이상 연속 합격 시 공식 계정 전환을 제안합니다.
+        </p>
+      </div>
+      <div class="text-right">
+        <div class="text-3xl font-bold <%= sr[:ready] ? 'text-emerald-700' : 'text-amber-700' %>"><%= sr[:percent] %>%</div>
+        <div class="text-xs <%= sr[:ready] ? 'text-emerald-600' : 'text-amber-600' %>"><%= sr[:passed] %>/<%= sr[:total] %> 항목 통과</div>
+      </div>
+    </div>
+
+    <div class="w-full bg-white/70 rounded-full h-3 overflow-hidden mb-4">
+      <div class="h-3 <%= sr[:ready] ? 'bg-emerald-500' : 'bg-amber-500' %> transition-all" style="width: <%= sr[:percent] %>%"></div>
+    </div>
+
+    <ul class="space-y-1.5 text-sm">
+      <% sr[:checks].each do |label, ok| %>
+        <li class="flex items-center gap-2">
+          <span class="<%= ok ? 'text-emerald-600' : 'text-rose-500' %>"><%= ok ? '✓' : '✕' %></span>
+          <span class="<%= ok ? 'text-slate-700' : 'text-slate-900 font-medium' %>"><%= label %></span>
+        </li>
+      <% end %>
+    </ul>
+
+    <% if sr[:ready] %>
+      <div class="mt-4 pt-3 border-t border-emerald-200 text-sm text-emerald-900">
+        <strong>정식 계정 전환 가능</strong> — 운영팀과 일정을 협의해 주세요.
+      </div>
+    <% else %>
+      <div class="mt-4 pt-3 border-t border-amber-200 text-sm text-amber-900">
+        <strong>다음 단계:</strong> 위 ✕ 항목을 운영팀과 함께 정리하면 공식 계정 전환이 가능합니다.
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
 <%# ── 원장님 확인 필요 (최상단 노출) ── %>
 <% if @handoffs_pending.any? %>
   <div class="mb-6 rounded-lg border-2 border-amber-300 bg-amber-50 p-4">

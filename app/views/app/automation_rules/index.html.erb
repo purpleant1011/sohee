@@ -2,10 +2,14 @@
 <div class="max-w-6xl mx-auto px-4 py-8">
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h1 class="text-2xl font-semibold text-gray-900">⚙️ 자동화 규칙</h1>
-      <p class="text-sm text-gray-500 mt-1">AI 직원이 스스로 콘텐츠를 만들고 발행하는 규칙을 관리합니다.</p>
+      <h1 class="text-2xl font-semibold text-gray-900">⏰ 자동화 루틴</h1>
+      <p class="text-sm text-gray-500 mt-1">AI 직원 소희가 스스로 콘텐츠를 만들고 발행하는 규칙을 운영팀과 함께 관리합니다.</p>
     </div>
     <%= link_to "+ 새 규칙", app_new_automation_rule_path, class: "px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700" %>
+  </div>
+
+  <div class="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 p-3 text-xs text-indigo-900">
+    <strong>🛡️ 안전 안내:</strong> 모든 자동화 규칙은 <strong>원장님 검수 후 발행</strong>이 기본값입니다. 발행 형태(즉시/예약/검수 후)는 규칙 단위로 운영팀과 협의합니다.
   </div>
 
   <% if @rules.any? %>

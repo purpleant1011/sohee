@@ -9,61 +9,94 @@
 </head>
 <body class="bg-slate-50 text-slate-900">
   <header class="bg-white border-b border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-4">
       <a href="<%= app_root_path %>" class="flex items-center gap-2">
         <span class="text-2xl">🌸</span>
-        <span class="font-bold text-lg"><%= brand.brand_name %></span>
-        <span class="text-xs text-slate-400">AI 마케팅 직원 운영실</span>
+        <div>
+          <div class="font-semibold text-slate-900"><%= brand.brand_name %></div>
+          <div class="text-[11px] text-slate-500 -mt-0.5">운영형 AI 마케팅 직원</div>
+        </div>
       </a>
-      <div class="flex items-center gap-3 text-sm">
-        <span class="text-slate-600"><%= current_user&.name %> 원장님</span>
-        <%= button_to "로그아웃", logout_path, method: :delete, class: "text-slate-500 hover:text-rose-600" %>
+
+      <div class="ml-auto flex items-center gap-3 text-sm">
+        <span class="text-slate-600 hidden sm:inline"><%= current_user&.name %> 원장님</span>
+        <% if @setup_readiness %>
+          <a href="<%= app_root_path %>#setup" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium <%= @setup_readiness[:ready] ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800' %>" title="셋업 준비도">
+            <span><%= @setup_readiness[:ready] ? '✅' : '🛠️' %></span>
+            <span>셋업 준비도 <%= @setup_readiness[:percent] %>%</span>
+          </a>
+        <% end %>
+        <%= button_to "로그아웃", logout_path, method: :delete, form: { class: "inline" }, class: "text-slate-500 hover:text-rose-600 text-sm" %>
       </div>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-4 py-4 flex gap-4">
-    <%# ── 사이드바 — 새 IA ── %>
-    <aside class="w-56 flex-shrink-0">
-      <nav class="bg-white rounded-lg border border-slate-200 overflow-hidden text-sm">
-        <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">운영</div>
-        <a href="<%= app_root_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'dashboards' %>">🌸 대시보드</a>
-        <a href="<%= app_ai_employees_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'ai_employees' %>">🤖 AI 직원 (소희)</a>
-
-        <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">사업장</div>
-        <a href="<%= app_business_profile_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'business_profiles' %>">🏪 사업장 프로필</a>
-        <a href="<%= app_knowledge_sources_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'knowledge_sources' %>">📚 지식베이스 / RAG</a>
-        <a href="<%= app_faqs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'faqs' %>">❓ FAQ</a>
-        <a href="<%= app_products_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'products' %>">💰 가격표 / 상품</a>
-
-        <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">운영</div>
-        <a href="<%= app_channels_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'channels' %>">🔌 채널 관리</a>
-        <a href="<%= app_content_items_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'content_items' %>">📅 콘텐츠 캘린더</a>
-        <a href="<%= app_conversations_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'conversations' %>">💬 문의 응대</a>
-        <a href="<%= app_handoffs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'handoffs' %>">⚠️ 원장님 확인 필요 <% if @current_account&.handoffs&.where(state: 'open')&.count&.positive? %><span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs"><%= @current_account.handoffs.where(state: 'open').count %></span><% end %></a>
-
-        <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">자동화</div>
-        <a href="/app/automations/rules" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'automation_rules' %>">⏰ 자동화 루틴</a>
-        <a href="<%= app_reports_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'reports' %>">📈 리포트</a>
-        <a href="<%= app_delivery_logs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'delivery_logs' %>">📋 운영 로그</a>
-
-        <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">설정</div>
-        <a href="<%= app_settings_path %>" class="block px-4 py-2.5 hover:bg-slate-50">⚙️ 설정</a>
-        <a href="<%= app_billing_path %>" class="block px-4 py-2.5 hover:bg-slate-50">💳 계약/요금</a>
-        <a href="<%= app_new_termination_path %>" class="block px-4 py-2.5 hover:bg-slate-50 text-slate-500">해지 신청</a>
-      </nav>
-
-      <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
-        <p class="font-semibold mb-1">🌸 소희 프로젝트</p>
-        <p>운영팀이 세팅하고, 소희가 매일 일하고, 원장님은 결과만 확인합니다.</p>
+<div class="max-w-7xl mx-auto px-4 py-4 flex gap-4">
+  <%# ── 셋업 준비도 카드 ── %>
+  <% if @setup_readiness %>
+    <% ready = @setup_readiness[:ready] %>
+    <% pct = @setup_readiness[:percent] %>
+    <div class="mb-3 rounded-lg border <%= ready ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' %> p-3 text-xs">
+      <div class="flex items-center justify-between mb-1.5">
+        <strong class="<%= ready ? 'text-emerald-900' : 'text-amber-900' %>">🛠️ 셋업 준비도</strong>
+        <span class="font-bold <%= ready ? 'text-emerald-700' : 'text-amber-700' %>"><%= pct %>%</span>
       </div>
-    </aside>
+      <div class="w-full bg-white/60 rounded-full h-2 overflow-hidden mb-2">
+        <div class="h-2 <%= ready ? 'bg-emerald-500' : 'bg-amber-500' %>" style="width: <%= pct %>%"></div>
+      </div>
+      <% if @setup_readiness[:missing].any? %>
+        <ul class="space-y-0.5 <%= ready ? 'text-emerald-800' : 'text-amber-900' %>">
+          <% @setup_readiness[:missing].each do |item| %>
+            <li>· <%= item %></li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p class="text-emerald-800">✓ 정식 계정 전환 가능 — 운영팀과 일정을 협의해 주세요.</p>
+      <% end %>
+    </div>
+  <% end %>
 
-    <main class="flex-1 min-w-0">
-      <% if notice %><div class="rounded bg-emerald-50 border border-emerald-200 px-4 py-2 mb-4 text-emerald-800"><%= notice %></div><% end %>
-      <% if alert  %><div class="rounded bg-rose-50 border border-rose-200 px-4 py-2 mb-4 text-rose-800"><%= alert  %></div><% end %>
-      <%= yield %>
-    </main>
-  </div>
+  <%# ── 사이드바 — 새 IA ── %>
+  <aside class="w-56 flex-shrink-0">
+    <nav class="bg-white rounded-lg border border-slate-200 overflow-hidden text-sm">
+      <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">① 시작</div>
+      <a href="<%= app_root_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'dashboards' %>">🌸 대시보드</a>
+      <a href="<%= app_ai_employees_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'ai_employees' %>">🤖 AI 직원 (소희)</a>
+
+      <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">② 사업장</div>
+      <a href="<%= app_business_profile_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'business_profiles' %>">🏪 사업장 프로필</a>
+      <a href="<%= app_knowledge_sources_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'knowledge_sources' %>">📚 지식베이스 / RAG</a>
+      <a href="<%= app_faqs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'faqs' %>">❓ FAQ</a>
+      <a href="<%= app_products_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'products' %>">💰 가격표 / 상품</a>
+
+      <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">③ 채널 · 콘텐츠</div>
+      <a href="<%= app_channels_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'channels' %>">🔌 채널 관리</a>
+      <a href="<%= app_content_items_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'content_items' %>">📅 콘텐츠 캘린더</a>
+      <a href="<%= app_conversations_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'conversations' %>">💬 문의 응대</a>
+      <a href="<%= app_handoffs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'handoffs' %>">⚠️ 원장님 확인 필요 <% if @current_account&.handoffs&.where(state: 'open')&.count&.positive? %><span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-rose-500 text-white text-xs"><%= @current_account.handoffs.where(state: 'open').count %></span><% end %></a>
+
+      <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">④ 자동화 · 보고</div>
+      <a href="/app/automations/rules" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'automation_rules' %>">⏰ 자동화 루틴</a>
+      <a href="<%= app_reports_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'reports' %>">📈 리포트</a>
+      <a href="<%= app_delivery_logs_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'delivery_logs' %>">📋 운영 로그</a>
+
+      <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">⑤ 계정</div>
+      <a href="<%= app_settings_path %>" class="block px-4 py-2.5 hover:bg-slate-50">⚙️ 설정</a>
+      <a href="<%= app_billing_path %>" class="block px-4 py-2.5 hover:bg-slate-50">💳 계약/요금</a>
+      <a href="<%= app_new_termination_path %>" class="block px-4 py-2.5 hover:bg-slate-50 text-slate-500">해지 신청</a>
+    </nav>
+
+    <div class="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-xs text-emerald-900">
+      <p class="font-semibold mb-1">🌸 소희 프로젝트</p>
+      <p>운영팀이 세팅하고, 소희가 매일 일하고, 원장님은 결과만 확인합니다.</p>
+    </div>
+  </aside>
+
+  <main class="flex-1 min-w-0">
+    <% if notice %><div class="rounded bg-emerald-50 border border-emerald-200 px-4 py-2 mb-4 text-emerald-800"><%= notice %></div><% end %>
+    <% if alert  %><div class="rounded bg-rose-50 border border-rose-200 px-4 py-2 mb-4 text-rose-800"><%= alert  %></div><% end %>
+    <%= yield %>
+  </main>
+</div>
 </body>
 </html>

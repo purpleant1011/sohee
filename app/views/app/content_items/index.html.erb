@@ -1,11 +1,30 @@
-<% content_for :title, "콘텐츠 목록" %>
+<% content_for :title, "콘텐츠 캘린더" %>
 <div class="max-w-6xl mx-auto p-6 space-y-4">
   <div class="flex items-center justify-between">
     <div>
-      <h1 class="text-2xl font-bold">📚 콘텐츠</h1>
-      <p class="text-sm text-gray-500">최근 생성된 콘텐츠 100건</p>
+      <h1 class="text-2xl font-bold">📅 콘텐츠 캘린더</h1>
+      <p class="text-sm text-gray-500">최근 생성된 콘텐츠 100건 · <%= link_to "원장님 검수 큐 →", app_pending_for_review_content_items_path, class: "text-amber-700 hover:underline" %></p>
     </div>
     <a class="px-4 py-2 rounded bg-indigo-600 text-white" href="<%= app_new_content_item_path %>">+ 새 콘텐츠 생성</a>
+  </div>
+
+  <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700 grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div>
+      <strong class="text-slate-900">🧪 생성 (generated)</strong>
+      <p class="mt-0.5">소희가 초안 작성</p>
+    </div>
+    <div>
+      <strong class="text-amber-700">🔎 검수 (pending_review)</strong>
+      <p class="mt-0.5">원장님 확인 대기</p>
+    </div>
+    <div>
+      <strong class="text-emerald-700">✅ 승인 (approved)</strong>
+      <p class="mt-0.5">게시 OK — 합격 누적</p>
+    </div>
+    <div>
+      <strong class="text-sky-700">📤 게시 (scheduled/posted)</strong>
+      <p class="mt-0.5">채널 발행 완료</p>
+    </div>
   </div>
 
   <% if @contents.empty? %>

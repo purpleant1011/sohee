@@ -11,8 +11,8 @@
 <% if @is_byreum %>
   <div class="mb-4 rounded-lg border-2 border-rose-200 bg-gradient-to-r from-rose-50 to-pink-50 p-4">
     <p class="text-sm text-rose-900">
-      🌸 <strong>바이름 청라점</strong>은 현재 <strong>소희 (기본)</strong> 페르소나로 테스트 운영 중입니다.<br>
-      <span class="text-xs">25년 경력의 이아름 원장님 톤에 맞게 차분하고 고급스럽게, 금지어와 인계 규칙이 설정되어 있어요.</span>
+      🌸 <strong>초기 파트너 매장</strong>은 현재 <strong>소희 (기본)</strong> 페르소나로 테스트 운영 중입니다.<br>
+      <span class="text-xs">차분하고 고급스럽게, 금지어와 인계 규칙이 운영팀과 함께 설정되어 있어요.</span>
     </p>
   </div>
 <% end %>
@@ -22,14 +22,13 @@
   <h2 class="font-bold text-lg mb-3">🌸 소희 페르소나 4가지 템플릿</h2>
   <p class="text-xs text-slate-500 mb-4">아래 템플릿 중 하나를 선택해 시작하세요. 이후 페르소나 화면에서 세밀하게 조정할 수 있습니다.</p>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-    <% preset = AiEmployee::PERSONA_PRESETS %>
     <% [
-      ["sohee_basic",   "🌸", "소희 (기본)",     "소상공인 일반", "친근하고 균형 잡힌 기본 페르소나. 1인 매장, 동네 가게에 적합.",        { friendliness: 80, expertise: 70, proactiveness: 60 }],
-      ["sohee_cafe",    "☕", "소희 (카페)",     "카페 · 디저트", "차분하고 따뜻한 톤. 메뉴·원두 소개, 분위기 강조.",                     { friendliness: 85, expertise: 65, proactiveness: 55 }],
-      ["sohee_salon",   "✂️", "소희 (미용실)",   "미용 · 네일 · 피부", "세련되고 친근한 톤. 시술 설명, 예약 안내, 사진 상담에 강함.",         { friendliness: 75, expertise: 85, proactiveness: 45 }],
-      ["sohee_expert",  "💼", "소희 (전문 상담)", "전문 서비스", "차분하고 고급스러운 톤. 25년 경력, 1:1 상담, 프리미엄 서비스에 적합.", { friendliness: 45, expertise: 95, proactiveness: 40 }]
-    ].each do |key, icon, title, sub, desc, default| %>
-      <div class="rounded-lg border-2 border-slate-200 hover:border-emerald-400 bg-gradient-to-br from-white to-slate-50 p-4 transition-all">
+      ["sohee_basic",   "🌸", "소희 (기본)",     "소상공인 일반", "친근하고 균형 잡힌 기본 페르소나. 1인 매장, 동네 가게에 적합.",        { friendliness: 80, expertise: 70, proactiveness: 60 }, "border-pink-400"],
+      ["sohee_cafe",    "☕", "소희 (카페)",     "카페 · 디저트", "차분하고 따뜻한 톤. 메뉴·원두 소개, 분위기 강조.",                     { friendliness: 85, expertise: 65, proactiveness: 55 }, "border-amber-400"],
+      ["sohee_salon",   "✂️", "소희 (미용실)",   "미용 · 네일 · 피부", "세련되고 친근한 톤. 시술 설명, 예약 안내, 사진 상담에 강함.",         { friendliness: 75, expertise: 85, proactiveness: 45 }, "border-teal-400"],
+      ["sohee_expert",  "💼", "소희 (전문 상담)", "전문 서비스", "차분하고 고급스러운 톤. 25년 경력, 1:1 상담, 프리미엄 서비스에 적합.", { friendliness: 45, expertise: 95, proactiveness: 40 }, "border-blue-400"]
+    ].each do |key, icon, title, sub, desc, default, color| %>
+      <div class="rounded-lg border-l-4 <%= color %> border-r border-y border-slate-200 hover:shadow-md bg-white p-4 transition-all">
         <div class="text-3xl mb-2"><%= icon %></div>
         <h3 class="font-bold text-slate-900"><%= title %></h3>
         <p class="text-xs text-slate-500 mb-2"><%= sub %></p>
