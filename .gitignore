@@ -36,3 +36,7 @@
 
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# Playwright report (test output, regenerated every run)
+/playwright-report/
+/test-results/
