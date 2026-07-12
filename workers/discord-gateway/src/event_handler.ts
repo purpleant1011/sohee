@@ -6,8 +6,13 @@ import { logger } from "./logger.js";
 
 export async function classifyAndDispatch(message: Message, _event: unknown): Promise<void> {
   // typing 표시 (사용자가 봇이 생각 중임을 알게 함)
+  // PartialGroupDMChannel/StageChannel/VoiceChannel 등 sendTyping 미지원 타입은 좁히기
   try {
-    await message.channel.sendTyping();
+    if (
+      message.channel.type !== 3 // GroupDM
+    ) {
+      await (message.channel as { sendTyping?: () => Promise<void> }).sendTyping?.();
+    }
   } catch (err) {
     logger.warn("Typing indicator failed", { err: String(err) });
   }

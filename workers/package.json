@@ -9,23 +9,22 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc --noEmit",
-    "dev:discord": "tsx watch workers/discord-gateway/src/index.ts",
-    "dev:gemini": "tsx watch workers/gemini-conversation/src/index.ts",
-    "dev:mcp": "tsx watch workers/sohee-control-mcp/src/index.ts",
-    "start:discord": "node workers/discord-gateway/dist/index.js",
-    "start:gemini": "node workers/gemini-conversation/dist/index.js",
-    "start:mcp": "node workers/sohee-control-mcp/dist/index.js"
+    "dev:discord": "tsx watch discord-gateway/src/index.ts",
+    "dev:gemini": "tsx watch gemini-conversation/src/index.ts",
+    "dev:mcp": "tsx watch sohee-control-mcp/src/index.ts",
+    "start:discord": "node discord-gateway/dist/index.js",
+    "start:gemini": "node gemini-conversation/dist/index.js",
+    "start:mcp": "node sohee-control-mcp/dist/index.js"
   },
   "dependencies": {
-    "@sohee-contracts/contracts": "file:../packages/sohee-contracts",
-    "@types/discord.js": "^14.14.1",
     "discord.js": "^14.16.3",
     "discord-interactions": "^4.0.0",
     "google-auth-library": "^9.15.0",
     "@google/genai": "^0.7.0",
     "zod": "^3.23.8",
     "ioredis": "^5.4.1",
-    "undici": "^6.21.0"
+    "undici": "^6.21.0",
+    "@modelcontextprotocol/sdk": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

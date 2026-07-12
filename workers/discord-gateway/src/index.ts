@@ -1,6 +1,6 @@
-# Discord Gateway entrypoint (P1 skeleton, 2026-07-12)
-# 역할: discord.js 클라이언트, 이벤트 라우팅, 권한 가드, Rails 내부 API 송신
-# 사람 단계: DISCORD_BOT_TOKEN 필요 (.env)
+// Discord Gateway entrypoint (P1 skeleton, 2026-07-12)
+// 역할: discord.js 클라이언트, 이벤트 라우팅, 권한 가드, Rails 내부 API 송신
+// 사람 단계: DISCORD_BOT_TOKEN 필요 (.env)
 
 import { Client, GatewayIntentBits, Events } from "discord.js";
 import { config } from "./config.js";

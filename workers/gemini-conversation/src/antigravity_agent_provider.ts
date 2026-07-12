@@ -15,7 +15,7 @@ export class AntigravityAgentProvider implements Provider {
     return Boolean(this.config.apiKey);
   }
 
-  async invoke(req: ProviderRequest): Promise<ProviderResponse> {
+  async invoke(_req: ProviderRequest): Promise<ProviderResponse> {
     if (!this.isReady) {
       return {
         text: "(antigravity_agent stub) not configured — set ANTIGRAVITY_AGENT_URL",

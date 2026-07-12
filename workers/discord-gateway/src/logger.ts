@@ -34,7 +34,7 @@ function emit(level: Level, msg: string, meta: Record<string, unknown> = {}) {
     level,
     service: "discord-gateway",
     msg,
-    ...redact(meta),
+    ...(redact(meta) as Record<string, unknown>),
   });
   if (level === "error") process.stderr.write(line + "\n");
   else process.stdout.write(line + "\n");

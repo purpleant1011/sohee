@@ -6,7 +6,7 @@ import { logger } from "./logger.js";
 
 interface RailsEventPayload {
   snowflake_id: string;
-  guild_id: string;
+  guild_id: string | null;
   channel_id: string;
   author_discord_id: string;
   kind: string;
