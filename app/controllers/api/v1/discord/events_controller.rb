@@ -40,7 +40,9 @@ module Api
             actor_kind: "system",
             actor_label: "discord-gateway",
             action: "discord.event.received",
-            target: "DiscordMessageEvent##{event.id}",
+            resource_type: "DiscordMessageEvent",
+            resource_id: event.id,
+            occurred_at: Time.current,
             metadata: { snowflake_id: event.snowflake_id, channel_id: event.channel_id }
           )
 

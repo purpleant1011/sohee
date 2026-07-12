@@ -8,6 +8,9 @@ import { logger } from "./logger.js";
 import { sendEventToRails } from "./rails_client.js";
 import { classifyAndDispatch } from "./event_handler.js";
 import { PermissionGuard } from "./permission_guard.js";
+import { DiscordSender } from "./discord_sender.js";
+
+const SENDER_PORT = Number(process.env.DISCORD_SENDER_PORT ?? "7300");
 
 const requiredIntents: GatewayIntentBits[] = [
   GatewayIntentBits.Guilds,
@@ -28,6 +31,8 @@ async function main() {
   });
 
   const guard = new PermissionGuard();
+  const sender = new DiscordSender(client);
+  sender.start(SENDER_PORT);
 
   client.once(Events.ClientReady, (c) => {
     logger.info(`Logged in as ${c.user.tag} (${c.user.id})`);

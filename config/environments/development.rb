@@ -66,7 +66,7 @@ Rails.application.configure do
   config.active_job.verbose_enqueue_logs = true
 
   # Solid Queue (Rails 8 default)
-  config.active_job.queue_adapter = :solid_queue
+  config.active_job.queue_adapter = ENV["SOHEE_QUEUE_ADAPTER"].present? ? ENV["SOHEE_QUEUE_ADAPTER"].to_sym : :solid_queue
 
   # Highlight code that triggered redirect in logs.
   config.action_dispatch.verbose_redirect_logs = true

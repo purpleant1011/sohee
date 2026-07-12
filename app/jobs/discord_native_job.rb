@@ -19,7 +19,8 @@ class DiscordNativeJob < ApplicationJob
       actor_kind: "system",
       actor_label: "discord_native_job:#{self.class.name}",
       action: "job.started",
-      target: target_label,
+      resource_type: model_class,
+      resource_id: resource_id_from_args,
       metadata: job_metadata
     )
   end
@@ -29,7 +30,8 @@ class DiscordNativeJob < ApplicationJob
       actor_kind: "system",
       actor_label: "discord_native_job:#{self.class.name}",
       action: "job.completed",
-      target: target_label,
+      resource_type: model_class,
+      resource_id: resource_id_from_args,
       metadata: job_metadata
     )
   end
@@ -39,7 +41,8 @@ class DiscordNativeJob < ApplicationJob
       actor_kind: "system",
       actor_label: "discord_native_job:#{self.class.name}",
       action: "job.failed",
-      target: target_label,
+      resource_type: model_class,
+      resource_id: resource_id_from_args,
       metadata: job_metadata.merge(error: error.class.name, message: error.message)
     )
     Rails.logger.error("[discord-native] #{self.class.name} failed: #{error.message}")
@@ -47,6 +50,10 @@ class DiscordNativeJob < ApplicationJob
 
   def target_label
     arguments.first.is_a?(Integer) ? "#{model_class}##{arguments.first}" : arguments.first.to_s
+  end
+
+  def resource_id_from_args
+    arguments.first.is_a?(Integer) ? arguments.first : nil
   end
 
   def model_class

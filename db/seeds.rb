@@ -346,3 +346,24 @@ puts "[seeds] done. Sign-in (business app): owner@demo.example / OwnerPass!23"
 puts "[seeds] done. Sign-in (byreum): byreum@soheeproject.example / pass1234!!  (slug: byreum)"
 puts "[seeds] done. Sign-in (platform admin): platform-admin@workmori.example / SuperSecret!23"
 puts "[seeds] Announcements: #{Announcement.count} (published: #{Announcement.where(status: 'published').count})"
+
+# ============================================================
+# Discord 워크스페이스 시드 (P3.5, 2026-07-12)
+# ============================================================
+# 사용자가 생성한 "소희" Discord 서버 (guild_id) ↔ 데모 사업장 연결.
+# ENV DISCORD_GUILD_ID / DISCORD_CHANNEL_ID 가 .env에 있을 때만 활성.
+if ENV["DISCORD_GUILD_ID"].present? && ENV["DISCORD_CHANNEL_ID"].present?
+  ws = DiscordWorkspace.find_or_initialize_by(guild_id: ENV["DISCORD_GUILD_ID"])
+  ws.assign_attributes(
+    business_profile_id: bp.id,
+    guild_name: "소희",
+    default_channel_id: ENV["DISCORD_CHANNEL_ID"],
+    default_channel_name: "소희-소통",
+    status: "active",
+    connected_at: Time.current
+  )
+  ws.save!
+  puts "[seeds] DiscordWorkspace: ##{ws.id} guild=#{ws.guild_id} status=#{ws.status}"
+else
+  puts "[seeds] DiscordWorkspace skipped (DISCORD_GUILD_ID / DISCORD_CHANNEL_ID missing in ENV)"
+end
