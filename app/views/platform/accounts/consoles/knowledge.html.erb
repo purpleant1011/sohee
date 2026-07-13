@@ -1,29 +1,86 @@
-<% content_for(:title, "#{@account.name} · knowledge — Sohee Project") %>
+<%# knowledge.html.erb — P4-3: 지식 베이스 (문서 + FAQ) %>
+<% content_for :title, "#{@account.name} · 지식 · 운영 콘솔" %>
+<div class="px-6 py-8 max-w-6xl mx-auto">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "지식" %>
 
-<header class="mb-6">
-  <nav class="text-xs text-slate-500 mb-2">
-    <a href="<%= platform_root_path %>" class="hover:text-slate-300">운영자</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_accounts_path %>" class="hover:text-slate-300">고객사</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_account_console_setup_path(@account) %>" class="hover:text-slate-300"><%= @account.name %></a>
-    <span class="mx-1">/</span>
-    <span class="text-slate-300">knowledge</span>
-  </nav>
-  <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-slate-100"><%= @account.name %> · knowledge</h1>
-    <%= link_to "← 설정으로", platform_account_console_setup_path(@account), class: "text-sm text-slate-400 hover:text-slate-200" %>
-  </div>
-</header>
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">지식 베이스</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      AI 직원이 인용하는 RAG 소스(문서, FAQ)를 관리합니다. RAG 누락은 "지식 갭" 페이지에서 추적됩니다.
+    </p>
+  </header>
 
-<section class="bg-slate-800 rounded-lg border border-slate-700 p-6">
-  <p class="text-sm text-slate-400">
-    knowledge 콘솔. (P4-4 에서 실 데이터 + 통제 액션 채울 예정. 현재는 라우트/컨트롤러/뷰 골격만 검증.)
-  </p>
-  <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">account.id</div><div class="text-slate-200">#<%= @account.id %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">status</div><div class="text-slate-200"><%= @account.status %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">created</div><div class="text-slate-200"><%= @account.created_at.strftime("%Y-%m-%d") %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">industry</div><div class="text-slate-200"><%= @account.id % 5 %></div></div>
-  </div>
-</section>
+  <%# ---- 문서 ---- %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-slate-800 mb-3">
+      문서
+      <span class="ml-2 text-xs font-normal text-slate-500">
+        (<%= @knowledge_documents&.size || 0 %>건)
+      </span>
+    </h2>
+    <% if @knowledge_documents.blank? || @knowledge_documents.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+        등록된 문서가 없습니다.
+      </div>
+    <% else %>
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">제목</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">등록일</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            <% @knowledge_documents.each do |doc| %>
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-2 text-xs text-slate-600 font-mono">#<%= doc.id %></td>
+                <td class="px-4 py-2 text-sm text-slate-900"><%= doc.respond_to?(:title) ? doc.title : (doc.respond_to?(:name) ? doc.name : "—") %></td>
+                <td class="px-4 py-2 text-xs text-slate-500"><%= doc.created_at&.strftime("%Y-%m-%d") %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
+  <%# ---- FAQ ---- %>
+  <section class="mb-8">
+    <h2 class="text-lg font-semibold text-slate-800 mb-3">
+      FAQ
+      <span class="ml-2 text-xs font-normal text-slate-500">
+        (<%= @faqs&.size || 0 %>건)
+      </span>
+    </h2>
+    <% if @faqs.blank? || @faqs.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
+        등록된 FAQ가 없습니다.
+      </div>
+    <% else %>
+      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+        <table class="min-w-full divide-y divide-slate-200">
+          <thead class="bg-slate-50">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">질문</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">답변 미리보기</th>
+            </tr>
+          </thead>
+          <tbody class="bg-white divide-y divide-slate-200">
+            <% @faqs.each do |faq| %>
+              <tr class="hover:bg-slate-50">
+                <td class="px-4 py-2 text-sm text-slate-900 max-w-md"><%= faq.respond_to?(:question) ? faq.question : "—" %></td>
+                <td class="px-4 py-2 text-xs text-slate-600 max-w-md truncate">
+                  <%= faq.respond_to?(:answer) ? faq.answer.to_s[0,80] : "—" %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </section>
+
+  <%= render partial: "platform/accounts/consoles/sibling_nav", current: :knowledge %>
+</div>

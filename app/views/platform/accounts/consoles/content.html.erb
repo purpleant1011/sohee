@@ -1,29 +1,74 @@
-<% content_for(:title, "#{@account.name} · content — Sohee Project") %>
+<%# content.html.erb — P4-3: 콘텐츠 아이템 목록 %>
+<% content_for :title, "#{@account.name} · 콘텐츠 · 운영 콘솔" %>
+<div class="px-6 py-8 max-w-6xl mx-auto">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "콘텐츠" %>
 
-<header class="mb-6">
-  <nav class="text-xs text-slate-500 mb-2">
-    <a href="<%= platform_root_path %>" class="hover:text-slate-300">운영자</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_accounts_path %>" class="hover:text-slate-300">고객사</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_account_console_setup_path(@account) %>" class="hover:text-slate-300"><%= @account.name %></a>
-    <span class="mx-1">/</span>
-    <span class="text-slate-300">content</span>
-  </nav>
-  <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-slate-100"><%= @account.name %> · content</h1>
-    <%= link_to "← 설정으로", platform_account_console_setup_path(@account), class: "text-sm text-slate-400 hover:text-slate-200" %>
-  </div>
-</header>
+  <header class="mb-6 flex items-baseline justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">콘텐츠</h1>
+      <p class="text-sm text-slate-500 mt-1">
+        AI 직원이 생성/수정한 콘텐츠 항목과 게시 상태.
+      </p>
+    </div>
+    <div class="text-sm text-slate-500">
+      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
+        <%= @content_items.size %>건
+      </span>
+    </div>
+  </header>
 
-<section class="bg-slate-800 rounded-lg border border-slate-700 p-6">
-  <p class="text-sm text-slate-400">
-    content 콘솔. (P4-4 에서 실 데이터 + 통제 액션 채울 예정. 현재는 라우트/컨트롤러/뷰 골격만 검증.)
-  </p>
-  <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">account.id</div><div class="text-slate-200">#<%= @account.id %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">status</div><div class="text-slate-200"><%= @account.status %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">created</div><div class="text-slate-200"><%= @account.created_at.strftime("%Y-%m-%d") %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">industry</div><div class="text-slate-200"><%= @account.id % 5 %></div></div>
-  </div>
-</section>
+  <% if @content_items.empty? %>
+    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
+      <div class="text-slate-400 text-5xl mb-3">📝</div>
+      <h3 class="text-base font-semibold text-slate-700">콘텐츠가 없습니다</h3>
+      <p class="text-sm text-slate-500 mt-1">AI 직원이 첫 콘텐츠를 생성하면 여기에 표시됩니다.</p>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">종류</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">제목/미리보기</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">생성일</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-200">
+          <% @content_items.each do |item| %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-2 text-xs text-slate-600 font-mono">#<%= item.id %></td>
+              <td class="px-4 py-2 text-xs">
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium bg-slate-100 text-slate-700">
+                  <%= item.respond_to?(:kind) ? item.kind : (item.respond_to?(:content_type) ? item.content_type : "—") %>
+                </span>
+              </td>
+              <td class="px-4 py-2 text-sm text-slate-900 max-w-md truncate">
+                <%= item.respond_to?(:title) && item.title.present? ? item.title :
+                      (item.respond_to?(:body) ? item.body.to_s[0,80] : "—") %>
+              </td>
+              <td class="px-4 py-2 text-xs">
+                <% st = item.respond_to?(:status) ? item.status : "draft" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
+                  <%= case st.to_s
+                      when /published|posted/ then 'bg-emerald-100 text-emerald-800'
+                      when /approved/ then 'bg-blue-100 text-blue-800'
+                      when /failed/ then 'bg-rose-100 text-rose-800'
+                      else 'bg-slate-100 text-slate-700'
+                      end %>">
+                  <%= st %>
+                </span>
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-500">
+                <%= item.created_at&.strftime("%m-%d %H:%M") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <%= render partial: "platform/accounts/consoles/sibling_nav", current: :content %>
+</div>

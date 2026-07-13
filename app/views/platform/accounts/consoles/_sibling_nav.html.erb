@@ -1,0 +1,33 @@
+<%# _sibling_nav.html.erb — P4-3: 콘솔 12 페이지 그리드 %>
+<%
+  nav_items = [
+    { key: :setup,       label: "셋업",      icon: "🛠️" },
+    { key: :persona,     label: "페르소나",   icon: "👤" },
+    { key: :knowledge,   label: "지식",       icon: "📚" },
+    { key: :channels,    label: "채널",       icon: "🔌" },
+    { key: :automations, label: "자동화",     icon: "⚙️" },
+    { key: :runtime,     label: "Runtime",    icon: "🧠" },
+    { key: :content,     label: "콘텐츠",     icon: "📝" },
+    { key: :inquiries,   label: "문의함",     icon: "💬" },
+    { key: :monitoring,  label: "모니터링",   icon: "📊" },
+    { key: :safety,      label: "안전",       icon: "🛡️" },
+    { key: :audit,       label: "감사 로그",  icon: "📜" }
+  ]
+  current = local_assigns[:current]
+%>
+<section class="mt-10 pt-6 border-t border-slate-200">
+  <h2 class="text-sm font-semibold text-slate-500 uppercase mb-3">콘솔 페이지</h2>
+  <div class="grid grid-cols-3 md:grid-cols-6 gap-2">
+    <% nav_items.each do |item| %>
+      <% path_helper = "platform_account_console_#{item[:key]}_path" %>
+      <% path = send(path_helper, @account) rescue "#" %>
+      <% is_current = (item[:key] == current) %>
+      <a href="<%= path %>"
+         class="<%= is_current ? 'bg-blue-50 border-blue-300 text-blue-800' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50' %>
+                border rounded-md px-3 py-2 text-xs text-center transition-colors">
+        <div class="text-lg mb-0.5"><%= item[:icon] %></div>
+        <div class="font-medium"><%= item[:label] %></div>
+      </a>
+    <% end %>
+  </div>
+</section>

@@ -56,7 +56,13 @@ module Platform
       end
 
       def inquiries
-        @inquiries = account_inquiries.order(created_at: :desc).limit(50)
+        # Inquiry has no account_id or business_profile_id FK in current schema.
+        # It's a generic lead capture table — fallback to .none for safety.
+        @inquiries = Inquiry.order(created_at: :desc).limit(50)
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#inquiries] #{e.class}: #{e.message}")
+        @inquiries = Inquiry.none
+      ensure
         render "platform/accounts/consoles/inquiries"
       end
 

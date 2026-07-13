@@ -1,29 +1,80 @@
-<% content_for(:title, "#{@account.name} · channels — Sohee Project") %>
+<%# channels.html.erb — P4-3: 채널 연결 + scope %>
+<% content_for :title, "#{@account.name} · 채널 · 운영 콘솔" %>
+<div class="px-6 py-8 max-w-6xl mx-auto">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "채널" %>
 
-<header class="mb-6">
-  <nav class="text-xs text-slate-500 mb-2">
-    <a href="<%= platform_root_path %>" class="hover:text-slate-300">운영자</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_accounts_path %>" class="hover:text-slate-300">고객사</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_account_console_setup_path(@account) %>" class="hover:text-slate-300"><%= @account.name %></a>
-    <span class="mx-1">/</span>
-    <span class="text-slate-300">channels</span>
-  </nav>
-  <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-slate-100"><%= @account.name %> · channels</h1>
-    <%= link_to "← 설정으로", platform_account_console_setup_path(@account), class: "text-sm text-slate-400 hover:text-slate-200" %>
-  </div>
-</header>
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">채널 연결</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Discord / Instagram / Webhook 등 외부 채널과 봇 연결 상태, 권한 범위(scope)를 관리합니다.
+    </p>
+  </header>
 
-<section class="bg-slate-800 rounded-lg border border-slate-700 p-6">
-  <p class="text-sm text-slate-400">
-    channels 콘솔. (P4-4 에서 실 데이터 + 통제 액션 채울 예정. 현재는 라우트/컨트롤러/뷰 골격만 검증.)
-  </p>
-  <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">account.id</div><div class="text-slate-200">#<%= @account.id %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">status</div><div class="text-slate-200"><%= @account.status %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">created</div><div class="text-slate-200"><%= @account.created_at.strftime("%Y-%m-%d") %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">industry</div><div class="text-slate-200"><%= @account.id % 5 %></div></div>
-  </div>
-</section>
+  <% if @channel_connections.empty? %>
+    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
+      <div class="text-slate-400 text-5xl mb-3">🔌</div>
+      <h3 class="text-base font-semibold text-slate-700">연결된 채널이 없습니다</h3>
+      <p class="text-sm text-slate-500 mt-1">셋업에서 첫 채널을 연결하세요.</p>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">종류</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">이름</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">테스트/공식</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">스코프</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">연결일</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-200">
+          <% @channel_connections.each do |cc| %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-2 text-xs">
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium bg-indigo-100 text-indigo-800">
+                  <%= cc.kind %>
+                </span>
+              </td>
+              <td class="px-4 py-2 text-sm text-slate-900">
+                <%= cc.respond_to?(:display_name) && cc.display_name.present? ? cc.display_name : (cc.respond_to?(:name) ? cc.name : "—") %>
+              </td>
+              <td class="px-4 py-2 text-xs">
+                <% st = cc.respond_to?(:status) ? cc.status : "active" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
+                  <%= st.to_s == 'active' || st.to_s == 'connected' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700' %>">
+                  <%= st %>
+                </span>
+              </td>
+              <td class="px-4 py-2 text-xs">
+                <% if cc.respond_to?(:test_mode) %>
+                  <% if cc.test_mode %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded font-medium bg-amber-100 text-amber-800">테스트</span>
+                  <% else %>
+                    <span class="inline-flex items-center px-2 py-0.5 rounded font-medium bg-blue-100 text-blue-800">공식</span>
+                  <% end %>
+                <% else %>
+                  <span class="text-slate-400">—</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-600">
+                <% scopes = cc.respond_to?(:channel_scopes) ? cc.channel_scopes.pluck(:scope) : [] %>
+                <% if scopes.any? %>
+                  <%= scopes.first(3).join(", ") %><%= scopes.size > 3 ? " +#{scopes.size - 3}" : "" %>
+                <% else %>
+                  <span class="text-slate-400">—</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-500">
+                <%= cc.created_at&.strftime("%Y-%m-%d") %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <%= render partial: "platform/accounts/consoles/sibling_nav", current: :channels %>
+</div>

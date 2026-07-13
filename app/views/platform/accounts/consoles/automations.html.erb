@@ -1,29 +1,69 @@
-<% content_for(:title, "#{@account.name} · automations — Sohee Project") %>
+<%# automations.html.erb — P4-3: 자동화 규칙 + 최근 실행/승인 만료 카운트 %>
+<% content_for :title, "#{@account.name} · 자동화 · 운영 콘솔" %>
+<div class="px-6 py-8 max-w-6xl mx-auto">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "자동화" %>
 
-<header class="mb-6">
-  <nav class="text-xs text-slate-500 mb-2">
-    <a href="<%= platform_root_path %>" class="hover:text-slate-300">운영자</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_accounts_path %>" class="hover:text-slate-300">고객사</a>
-    <span class="mx-1">/</span>
-    <a href="<%= platform_account_console_setup_path(@account) %>" class="hover:text-slate-300"><%= @account.name %></a>
-    <span class="mx-1">/</span>
-    <span class="text-slate-300">automations</span>
-  </nav>
-  <div class="flex items-center justify-between gap-4">
-    <h1 class="text-2xl font-bold text-slate-100"><%= @account.name %> · automations</h1>
-    <%= link_to "← 설정으로", platform_account_console_setup_path(@account), class: "text-sm text-slate-400 hover:text-slate-200" %>
-  </div>
-</header>
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold text-slate-900">자동화 규칙</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      AI 직원이 자동으로 수행하는 게시/응답/리포트 규칙과 그 실행 상태를 보여줍니다.
+    </p>
+  </header>
 
-<section class="bg-slate-800 rounded-lg border border-slate-700 p-6">
-  <p class="text-sm text-slate-400">
-    automations 콘솔. (P4-4 에서 실 데이터 + 통제 액션 채울 예정. 현재는 라우트/컨트롤러/뷰 골격만 검증.)
-  </p>
-  <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">account.id</div><div class="text-slate-200">#<%= @account.id %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">status</div><div class="text-slate-200"><%= @account.status %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">created</div><div class="text-slate-200"><%= @account.created_at.strftime("%Y-%m-%d") %></div></div>
-    <div class="bg-slate-900 rounded p-3"><div class="text-slate-500 text-xs">industry</div><div class="text-slate-200"><%= @account.id % 5 %></div></div>
-  </div>
-</section>
+  <% if @automation_rules.empty? %>
+    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
+      <div class="text-slate-400 text-5xl mb-3">⚙️</div>
+      <h3 class="text-base font-semibold text-slate-700">자동화 규칙이 없습니다</h3>
+      <p class="text-sm text-slate-500 mt-1">셋업에서 자동 게시/응답 규칙을 추가하세요.</p>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
+      <table class="min-w-full divide-y divide-slate-200">
+        <thead class="bg-slate-50">
+          <tr>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">이름</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">최근 실행</th>
+            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">실행 횟수</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-slate-200">
+          <% @automation_rules.each do |rule| %>
+            <% last = rule.automation_executions.order(created_at: :desc).first %>
+            <tr class="hover:bg-slate-50">
+              <td class="px-4 py-2 text-xs text-slate-600 font-mono">#<%= rule.id %></td>
+              <td class="px-4 py-2 text-sm text-slate-900">
+                <%= rule.respond_to?(:name) ? rule.name : (rule.respond_to?(:title) ? rule.title : "—") %>
+              </td>
+              <td class="px-4 py-2 text-xs">
+                <% st = rule.respond_to?(:status) ? rule.status : "active" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
+                  <%= case st.to_s
+                      when 'active', 'enabled' then 'bg-emerald-100 text-emerald-800'
+                      when 'paused' then 'bg-amber-100 text-amber-800'
+                      else 'bg-slate-100 text-slate-700'
+                      end %>">
+                  <%= st %>
+                </span>
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-600">
+                <% if last %>
+                  <%= last.created_at&.strftime("%m-%d %H:%M") %>
+                  <span class="ml-1 text-slate-400">(<%= last.state %>)</span>
+                <% else %>
+                  <span class="text-slate-400">없음</span>
+                <% end %>
+              </td>
+              <td class="px-4 py-2 text-xs text-slate-600">
+                <%= rule.automation_executions.size %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+
+  <%= render partial: "platform/accounts/consoles/sibling_nav", current: :automations %>
+</div>

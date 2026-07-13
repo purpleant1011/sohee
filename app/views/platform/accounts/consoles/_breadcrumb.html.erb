@@ -1,0 +1,18 @@
+<%# _breadcrumb.html.erb — P4-3: 콘솔 페이지 공통 breadcrumb %>
+<nav class="text-sm text-slate-500 mb-4" aria-label="Breadcrumb">
+  <ol class="flex items-center space-x-2">
+    <li><a href="<%= platform_root_path %>" class="hover:text-slate-700">플랫폼</a></li>
+    <li class="text-slate-300">/</li>
+    <li>
+      <a href="<%= platform_accounts_path %>" class="hover:text-slate-700">사업자</a>
+    </li>
+    <li class="text-slate-300">/</li>
+    <li>
+      <a href="<%= platform_account_path(@account) %>" class="hover:text-slate-700">
+        <%= @account.name %>
+      </a>
+    </li>
+    <li class="text-slate-300">/</li>
+    <li class="text-slate-700 font-medium"><%= local_assigns[:current] %></li>
+  </ol>
+</nav>

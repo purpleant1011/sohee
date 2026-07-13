@@ -142,18 +142,4 @@
 </section>
 
 <!-- Quick nav to sibling console pages -->
-<section>
-  <h3 class="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3">콘솔 페이지</h3>
-  <div class="flex flex-wrap gap-2 text-sm">
-    <%= link_to "페르소나", platform_account_console_persona_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "지식", platform_account_console_knowledge_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "채널", platform_account_console_channels_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "자동화", platform_account_console_automations_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "Runtime", platform_account_console_runtime_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "콘텐츠", platform_account_console_content_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "문의", platform_account_console_inquiries_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "모니터링", platform_account_console_monitoring_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "감사", platform_account_console_audit_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-    <%= link_to "안전", platform_account_console_safety_path(@account), class: "px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" %>
-  </div>
-</section>
+<%= render partial: "platform/accounts/consoles/sibling_nav", current: :setup %>
