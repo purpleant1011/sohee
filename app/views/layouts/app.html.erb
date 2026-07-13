@@ -5,7 +5,8 @@
 <title><%= brand.brand_name %> · AI 마케팅 직원 운영실</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <%= csrf_meta_tags %>
-<script src="https://cdn.tailwindcss.com"></script>
+<%= stylesheet_link_tag "tailwind", "inter-font", "data-turbo-track": "reload" %>
+<%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
 </head>
 <body class="bg-slate-50 text-slate-900">
   <header class="bg-white border-b border-slate-200">
@@ -31,37 +32,13 @@
     </div>
   </header>
 
-<div class="max-w-7xl mx-auto px-4 py-4 flex gap-4">
-  <%# ── 셋업 준비도 카드 ── %>
-  <% if @setup_readiness %>
-    <% ready = @setup_readiness[:ready] %>
-    <% pct = @setup_readiness[:percent] %>
-    <div class="mb-3 rounded-lg border <%= ready ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' %> p-3 text-xs">
-      <div class="flex items-center justify-between mb-1.5">
-        <strong class="<%= ready ? 'text-emerald-900' : 'text-amber-900' %>">🛠️ 셋업 준비도</strong>
-        <span class="font-bold <%= ready ? 'text-emerald-700' : 'text-amber-700' %>"><%= pct %>%</span>
-      </div>
-      <div class="w-full bg-white/60 rounded-full h-2 overflow-hidden mb-2">
-        <div class="h-2 <%= ready ? 'bg-emerald-500' : 'bg-amber-500' %>" style="width: <%= pct %>%"></div>
-      </div>
-      <% if @setup_readiness[:missing].any? %>
-        <ul class="space-y-0.5 <%= ready ? 'text-emerald-800' : 'text-amber-900' %>">
-          <% @setup_readiness[:missing].each do |item| %>
-            <li>· <%= item %></li>
-          <% end %>
-        </ul>
-      <% else %>
-        <p class="text-emerald-800">✓ 정식 계정 전환 가능 — 운영팀과 일정을 협의해 주세요.</p>
-      <% end %>
-    </div>
-  <% end %>
-
+<div class="app-shell max-w-[1440px] mx-auto px-4 py-4 flex gap-4">
   <%# ── 사이드바 — 7개 그룹 IA (2026-07-12 P0-2 리뉴얼) ── %>
   <aside class="w-56 flex-shrink-0">
     <nav class="bg-white rounded-lg border border-slate-200 overflow-hidden text-sm">
       <div class="px-4 py-2 bg-slate-50 border-b border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider">① 오늘</div>
       <a href="<%= app_root_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'dashboards' %>">🌸 대시보드</a>
-      <a href="<%= app_ai_employees_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'ai_employees' %>">🤖 AI 직원 (소희)</a>
+      <%# ── (P0) AI 직원 메뉴 노출 안 함 — persona_preset/sohee_basic 등 내부 키가 사업자에게 노출되지 않도록. 운영자 콘솔(/platform) 에서만 접근. route 자체는 유지(운영자 deep link). ── %>
 
       <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">② 매장 정보</div>
       <a href="<%= app_business_profile_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'business_profiles' %>">🏪 사업장 프로필</a>
@@ -107,6 +84,29 @@
   <main class="flex-1 min-w-0">
     <% if notice %><div class="rounded bg-emerald-50 border border-emerald-200 px-4 py-2 mb-4 text-emerald-800"><%= notice %></div><% end %>
     <% if alert  %><div class="rounded bg-rose-50 border border-rose-200 px-4 py-2 mb-4 text-rose-800"><%= alert  %></div><% end %>
+    <%# ── 셋업 준비도 카드 (P0: layout flex 구조 수정, 명세 §4) ── %>
+    <% if @setup_readiness %>
+      <% ready = @setup_readiness[:ready] %>
+      <% pct = @setup_readiness[:percent] %>
+      <div class="mb-4 rounded-lg border <%= ready ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50' %> p-3 text-xs">
+        <div class="flex items-center justify-between mb-1.5">
+          <strong class="<%= ready ? 'text-emerald-900' : 'text-amber-900' %>">🛠️ 셋업 준비도</strong>
+          <span class="font-bold <%= ready ? 'text-emerald-700' : 'text-amber-700' %>"><%= pct %>%</span>
+        </div>
+        <div class="w-full bg-white/60 rounded-full h-2 overflow-hidden mb-2">
+          <div class="h-2 <%= ready ? 'bg-emerald-500' : 'bg-amber-500' %>" style="width: <%= pct %>%"></div>
+        </div>
+        <% if @setup_readiness[:missing].any? %>
+          <ul class="space-y-0.5 <%= ready ? 'text-emerald-800' : 'text-amber-900' %>">
+            <% @setup_readiness[:missing].each do |item| %>
+              <li>· <%= item %></li>
+            <% end %>
+          </ul>
+        <% else %>
+          <p class="text-emerald-800">✓ 정식 계정 전환 가능 — 운영팀과 일정을 협의해 주세요.</p>
+        <% end %>
+      </div>
+    <% end %>
     <%= yield %>
   </main>
 </div>

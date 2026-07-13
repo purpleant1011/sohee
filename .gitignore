@@ -46,3 +46,5 @@
 /workers/*/dist/
 /workers/*/tsconfig.tsbuildinfo
 /workers/package-lock.json
+*.p1-backup
+docs/*.p1-backup
