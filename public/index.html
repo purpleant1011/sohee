@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>소희 프로젝트 · 뷰티샵 원장님을 위한 AI 마케팅 직원</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="소희 프로젝트 - SNS, 블로그, 네이버 플레이스, 당근, 문의응대를 AI 직원 소희가 대신 운영하는 운영형 서비스. 전문가가 세팅하고, 소희가 일하고, 원장님은 시술에 집중하세요.">
+<meta property="og:title" content="소희 프로젝트 - 뷰티샵 원장님을 위한 AI 마케팅 직원">
+<meta property="og:description" content="시술은 원장님이, 홍보와 문의응대는 소희가. 초기 파트너 매장에서 검증 중.">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #fafaf9;
+    --bg-card: #ffffff;
+    --ink: #1c1917;
+    --ink-soft: #57534e;
+    --ink-muted: #78716c;
+    --line: #e7e5e4;
+    --brand: #0d9488;
+    --brand-soft: #ccfbf1;
+    --brand-deep: #115e59;
+    --accent: #be185d;
+    --accent-soft: #fce7f3;
+    --warn: #b45309;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", serif; margin: 0; padding: 0; background: var(--bg); color: var(--ink); line-height: 1.65; }
+  header { padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); background: rgba(250, 250, 249, 0.95); backdrop-filter: blur(8px); position: sticky; top: 0; z-index: 10; }
+  .logo { font-weight: 800; font-size: 1.15rem; color: var(--brand-deep); letter-spacing: -0.02em; text-decoration: none; }
+  .nav-login { background: var(--brand-deep); color: #fff !important; padding: 0.45rem 0.95rem; border-radius: 999px; font-weight: 600; font-size: 0.88rem; margin-left: 0.4rem; }
+  .nav-login:hover { background: var(--brand); }
+  .logo small { color: var(--ink-muted); font-weight: 500; font-size: 0.7rem; margin-left: 0.4rem; }
+  nav a { color: var(--ink-soft); text-decoration: none; margin-left: 1.4rem; font-size: 0.92rem; }
+  nav a:hover { color: var(--brand); }
+  nav a.cta-link { color: var(--accent); font-weight: 600; }
+
+  section { padding: 4rem 2rem; max-width: 1100px; margin: 0 auto; }
+  .section-eyebrow { color: var(--brand); font-weight: 700; font-size: 0.82rem; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 0.6rem; text-align: center; }
+  h2 { font-size: 2.1rem; letter-spacing: -0.02em; margin: 0 0 0.8rem 0; font-weight: 800; line-height: 1.25; }
+  h3 { font-size: 1.1rem; margin: 0 0 0.4rem 0; font-weight: 700; }
+  .section-sub { color: var(--ink-soft); max-width: 640px; margin: 0 auto 2.5rem; font-size: 1rem; text-align: center; }
+  .section-title { text-align: center; margin-bottom: 0.5rem; }
+
+  /* Hero */
+  .hero { padding: 5.5rem 2rem 4.5rem; max-width: 880px; margin: 0 auto; text-align: center; }
+  .hero-eyebrow { display: inline-block; padding: 0.3rem 0.8rem; background: var(--brand-soft); color: var(--brand-deep); border-radius: 999px; font-size: 0.85rem; font-weight: 600; margin-bottom: 1.5rem; }
+  h1 { font-size: 2.8rem; line-height: 1.2; margin: 0 0 1.25rem 0; letter-spacing: -0.03em; font-weight: 800; }
+  h1 em { font-style: normal; color: var(--brand); }
+  h1 .accent { color: var(--accent); }
+  .hero-sub { font-size: 1.1rem; color: var(--ink-soft); margin: 0 0 1.2rem 0; }
+  .hero-meta { display: inline-block; padding: 0.5rem 1rem; background: var(--accent-soft); border-radius: 8px; font-size: 0.85rem; color: var(--accent); font-weight: 600; margin-bottom: 1.5rem; }
+  .cta-row { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+  .cta { display: inline-block; padding: 1rem 2rem; background: var(--accent); color: white; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 1rem; transition: transform 0.1s; box-shadow: 0 4px 12px rgba(190, 24, 93, 0.2); }
+  .cta:hover { transform: translateY(-2px); }
+  .cta-secondary { background: white; color: var(--ink); border: 1.5px solid var(--line); box-shadow: none; }
+  .cta-secondary:hover { background: var(--bg); }
+  .hero-disclaimer { font-size: 0.78rem; color: var(--ink-muted); margin-top: 1.25rem; }
+
+  /* Cards / Grids */
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem; }
+  .card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 1.5rem; }
+  .card-icon { font-size: 1.6rem; margin-bottom: 0.5rem; display: inline-block; }
+  .card p { margin: 0; color: var(--ink-soft); font-size: 0.92rem; }
+
+  /* Pain section */
+  .pain { background: #fef2f2; padding: 4rem 2rem; }
+  .pain-list { list-style: none; padding: 0; margin: 1.5rem auto 0; max-width: 720px; }
+  .pain-list li { padding: 0.7rem 0 0.7rem 1.8rem; position: relative; color: var(--ink-soft); border-bottom: 1px solid #fecaca; }
+  .pain-list li:last-child { border-bottom: none; }
+  .pain-list li::before { content: "❌"; position: absolute; left: 0; top: 0.7rem; }
+
+  /* Compare table */
+  .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; max-width: 880px; margin: 0 auto; }
+  .compare-col { background: var(--bg-card); border: 1.5px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .compare-col h3 { padding: 1rem 1.25rem; margin: 0; font-size: 1rem; background: var(--line); }
+  .compare-col.us h3 { background: var(--brand-soft); color: var(--brand-deep); }
+  .compare-col ul { list-style: none; padding: 1rem 1.25rem 1.25rem; margin: 0; }
+  .compare-col ul li { padding: 0.4rem 0 0.4rem 1.6rem; position: relative; color: var(--ink-soft); font-size: 0.92rem; }
+  .compare-col ul li::before { content: "✕"; position: absolute; left: 0; color: var(--ink-muted); }
+  .compare-col.us ul li::before { content: "✓"; color: var(--brand); font-weight: 700; }
+  .compare-col ul li::after { content: " (직접)"; font-size: 0.75rem; color: var(--ink-muted); }
+  .compare-col.us ul li::after { content: " (소희/전문가)"; font-size: 0.75rem; color: var(--brand-deep); font-weight: 600; }
+
+  /* Process steps */
+  .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.75rem; max-width: 920px; margin: 1.5rem auto 0; }
+  .step { background: var(--bg-card); border: 1.5px solid var(--brand-soft); border-radius: 10px; padding: 1rem; text-align: center; }
+  .step-num { display: inline-block; width: 28px; height: 28px; line-height: 28px; border-radius: 50%; background: var(--brand); color: white; font-weight: 700; margin-bottom: 0.4rem; }
+  .step p { font-size: 0.85rem; color: var(--ink-soft); margin: 0; }
+  .step strong { display: block; color: var(--ink); margin-bottom: 0.2rem; }
+
+  /* Dashboard mock */
+  .dashboard-mock { background: var(--bg-card); border: 1.5px solid var(--line); border-radius: 14px; padding: 1.5rem; max-width: 880px; margin: 2rem auto 0; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.08); }
+  .dashboard-mock-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--line); margin-bottom: 1rem; }
+  .dashboard-mock-head h4 { margin: 0; font-size: 1.05rem; }
+  .dashboard-mock-head small { color: var(--ink-muted); font-size: 0.82rem; }
+  .dash-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; margin-bottom: 1rem; }
+  .dash-kpi { background: #f8fafc; padding: 0.75rem; border-radius: 8px; text-align: center; }
+  .dash-kpi .num { font-size: 1.4rem; font-weight: 800; color: var(--brand-deep); display: block; }
+  .dash-kpi small { font-size: 0.72rem; color: var(--ink-muted); }
+  .dash-list { background: #fef3c7; border-left: 3px solid var(--warn); padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.88rem; }
+  .dash-list strong { color: var(--warn); }
+
+  /* Channel cards */
+  .channel { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem; }
+  .channel h3 { display: flex; align-items: center; gap: 0.5rem; font-size: 1rem; margin-bottom: 0.4rem; }
+  .channel .status { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; background: #e0e7ff; color: #3730a3; }
+
+  /* Pricing note */
+  .pricing-note { max-width: 640px; margin: 0 auto; text-align: center; background: var(--bg-card); border: 1.5px solid var(--line); border-radius: 12px; padding: 2.5rem 2rem; }
+  .pricing-note h3 { font-size: 1.4rem; margin-bottom: 1rem; }
+
+  /* FAQ */
+  .faq { max-width: 720px; margin: 0 auto; }
+  .faq-item { background: var(--bg-card); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 0.75rem; }
+  .faq-q { padding: 1.2rem 1.5rem; font-weight: 700; cursor: pointer; position: relative; }
+  .faq-q::after { content: "+"; position: absolute; right: 1.5rem; color: var(--brand); font-size: 1.5rem; }
+  .faq-item[open] .faq-q::after { content: "−"; }
+  .faq-a { padding: 0 1.5rem 1.2rem; color: var(--ink-soft); margin: 0; }
+
+  /* Quote */
+  .quote { background: var(--accent-soft); border-radius: 12px; padding: 2rem; max-width: 720px; margin: 1.5rem auto 0; text-align: center; font-size: 1.05rem; line-height: 1.7; }
+  .quote-author { margin-top: 1rem; font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* CTA section */
+  .cta-section { background: linear-gradient(135deg, var(--brand-deep), var(--brand)); color: white; text-align: center; padding: 5rem 2rem; }
+  .cta-section h2 { color: white; }
+  .cta-section .cta { background: white; color: var(--accent); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+  .cta-section p { opacity: 0.9; max-width: 540px; margin: 0 auto 2rem; }
+
+  /* Footer */
+  footer { background: var(--ink); color: #d6d3d1; padding: 3rem 2rem 2rem; }
+  footer .inner { max-width: 1100px; margin: 0 auto; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: space-between; }
+  footer h4 { color: white; font-size: 0.95rem; margin: 0 0 0.5rem; }
+  footer a { color: #d6d3d1; text-decoration: none; display: block; font-size: 0.85rem; padding: 0.15rem 0; }
+  footer a:hover { color: white; }
+  footer .legal { max-width: 1100px; margin: 2rem auto 0; padding-top: 2rem; border-top: 1px solid #44403c; font-size: 0.78rem; color: #a8a29e; text-align: center; }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 2.05rem; }
+    h2 { font-size: 1.6rem; }
+    .hero { padding: 3.5rem 1.25rem 3rem; }
+    section { padding: 3rem 1.25rem; }
+    nav a { margin-left: 0.9rem; font-size: 0.82rem; }
+    .logo small { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/sohee/" class="logo">sohee<small>운영형 AI 마케팅 직원</small></a>
+  <nav>
+    <a href="#story">원장님의 현실</a>
+    <a href="#solution">소희가 하는 일</a>
+    <a href="#flow">운영 방식</a>
+    <a href="#case">초기 파트너 사례</a>
+    <a href="#pricing">가격 안내</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://peripheral-oasis-certificates-antiques.trycloudflare.com/app/login" target="_blank" rel="noopener noreferrer" class="nav-login">로그인</a>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <span class="hero-eyebrow">운영형 AI 마케팅 직원 서비스 <span class="hero-pilot">초기 파트너 모집 중</span></span>
+  <h1>시술은 원장님이,<br><span class="accent">홍보·문의응대</span>는<br><em>소희</em>가 합니다.</h1>
+  <p class="hero-sub">SNS, 블로그, 네이버 플레이스, 당근, 문의응대를<br>AI 직원 소희가 매일 대신 운영합니다.</p>
+  <p class="hero-meta">초기 파트너 매장에서 운영 안정성 확인 중 · 정식 가격은 검증 후 공개</p>
+  <div class="cta-row">
+    <a href="#contact" class="cta">초기 도입 상담 신청하기</a>
+    <a href="#solution" class="cta cta-secondary">소희가 하는 일 보기</a>
+  </div>
+  <div class="hero-trust">
+    <span>✓ 전문가가 직접 세팅</span>
+    <span>✓ 테스트 계정 검증 후 공식 전환</span>
+    <span>✓ 심화 상담은 원장님께 인계</span>
+  </div>
+  <p class="hero-disclaimer">* 교육 상품이 아닙니다. SaaS 자동화툴도 아닙니다. 전문가가 세팅하고, 소희가 일합니다.</p>
+</section>
+
+<!-- ============ Section 1: PAIN ============ -->
+<section id="story" class="pain">
+  <div class="section-eyebrow">원장님의 현실</div>
+  <h2 class="section-title">시술은 하루 종일 하는데,<br>홍보는 또 직접 해야 합니다.</h2>
+  <p class="section-sub">아래 3가지가 반복되면, 결국 홍보와 응대는 방치됩니다.</p>
+
+  <div class="pain-grid">
+    <div class="pain-col">
+      <h3>⏱ 시간이 없다</h3>
+      <ul>
+        <li>매일 SNS 글 올리려고 해도 시간이 없다</li>
+        <li>블로그는 해야 하는데, 글감이 막힌다</li>
+        <li>콘텐츠 만들 시간이 없어서 결국 광고만 쓴다</li>
+      </ul>
+    </div>
+    <div class="pain-col">
+      <h3>🎯 품질이 들쭉날쭉</h3>
+      <ul>
+        <li>DM·댓글·당근 문의에 바로 답하기 어렵다</li>
+        <li>네이버 플레이스는 방치되기 쉽다</li>
+        <li>후기·전후사진이 쌓여도 콘텐츠로 활용 못함</li>
+      </ul>
+    </div>
+    <div class="pain-col">
+      <h3>🤝 외부에 맡기기 어렵다</h3>
+      <ul>
+        <li>대행사는 우리 매장을 깊게 이해하지 못한다</li>
+        <li>자동화 교육을 들어도 결국 운영은 사장님 몫</li>
+        <li>매번 톤·금지어·고객 응대를 다시 알려야 함</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quote">
+    "시술이 끝나면 손이 굳어서 글씨도 못 쓰겠는데,<br>
+    인스타는 올려야 하고 블로그는 써야 하고… 결국 방치되더라고요."
+    <div class="quote-author">— 한 뷰티샵 원장님 실제 후기 (요약)</div>
+  </div>
+</section>
+
+<!-- ============ Section 2: SOLUTION ============ -->
+<section id="solution">
+  <div class="section-eyebrow">Solution</div>
+  <h2 class="section-title">소희는 뷰티샵을 위한 AI 마케팅 직원입니다.</h2>
+  <p class="section-sub">반복적인 홍보·문의응대 업무를 매일 대신하고, 원장님이 진짜 중요한 일에 집중하게 합니다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <span class="card-tag">콘텐츠</span>
+      <span class="card-icon">📱</span>
+      <h3>SNS 콘텐츠 운영</h3>
+      <p>인스타그램·스레드 콘텐츠의 주제·문구·해시태그 생성. 전후사진·후기·FAQ를 콘텐츠화.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">콘텐츠</span>
+      <span class="card-icon">📝</span>
+      <h3>블로그 콘텐츠 운영</h3>
+      <p>검색 고객을 위한 설명형·고객 불안 해소형·시술 전 질문 글감형 블로그 글 작성.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">응대</span>
+      <span class="card-icon">💬</span>
+      <h3>문의 기초응대</h3>
+      <p>반복 질문 안내 · 사진·카카오·당근·전화 등 직접 상담 채널로 연결 · 심화상담은 원장님 인계.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">RAG</span>
+      <span class="card-icon">📚</span>
+      <h3>지식베이스 (RAG)</h3>
+      <p>FAQ·가격표·시술 안내·후기·블로그 레퍼런스를 통합 검색. 잘못된 정보를 답변하지 않도록 출처 기반 응답.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">실행</span>
+      <span class="card-icon">⏰</span>
+      <h3>자동화 루틴</h3>
+      <p>요일·시간·채널·작업별 소희 반복 업무 설정. 기초응대·콘텐츠 발행·리포트까지 자동 실행.</p>
+    </div>
+    <div class="card">
+      <span class="card-tag">보고</span>
+      <span class="card-icon">📊</span>
+      <h3>일일/주간 보고</h3>
+      <p>오늘 생성한 콘텐츠 · 문의 흐름 · 자주 묻는 질문 · 다음 콘텐츠 소재 · 개선 필요 사항.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Section 3: vs 교육 ============ -->
+<section id="diff" style="background: #f5f5f4; padding: 4rem 2rem;">
+  <div class="section-eyebrow">왜 다른가</div>
+  <h2 class="section-title">배우는 자동화가 아니라,<br>맡기는 AI 직원입니다.</h2>
+  <p class="section-sub">자동화 교육·컨설팅은 사장님이 직접 배우고 운영해야 합니다. 소희 프로젝트는 다릅니다.</p>
+
+  <div class="compare">
+    <div class="compare-col">
+      <h3>자동화 교육 / 컨설팅</h3>
+      <ul>
+        <li>사장님이 배워야 함</li>
+        <li>직접 세팅해야 함</li>
+        <li>고장나면 직접 고쳐야 함</li>
+        <li>바쁘면 다시 방치됨</li>
+        <li>결국 운영 부담이 남음</li>
+      </ul>
+    </div>
+    <div class="compare-col us">
+      <h3>소희 프로젝트 (운영형)</h3>
+      <ul>
+        <li>전문가가 세팅</li>
+        <li>소희가 매일 운영</li>
+        <li>전문가가 개선·관리</li>
+        <li>원장님은 결과만 확인</li>
+        <li>본업에 집중 가능</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Section 4: 운영 방식 ============ -->
+<section id="flow">
+  <div class="section-eyebrow">운영 방식</div>
+  <h2 class="section-title">처음부터 공식 계정에 올리지 않습니다.</h2>
+  <p class="section-sub">테스트 계정에서 충분히 검증한 뒤, 원장님 승인 하에 공식 계정으로 전환합니다.</p>
+
+  <div class="steps">
+    <div class="step"><span class="step-num">1</span><strong>사업장 자료 확인</strong><p>메뉴·가격·FAQ·전후사진 등</p></div>
+    <div class="step"><span class="step-num">2</span><strong>소희 페르소나 설정</strong><p>톤·어휘·금지어·인계 규칙</p></div>
+    <div class="step"><span class="step-num">3</span><strong>테스트 계정 운영</strong><p>품질 검증</p></div>
+    <div class="step"><span class="step-num">4</span><strong>원장님 피드백</strong><p>톤·내용 수정</p></div>
+    <div class="step"><span class="step-num">5</span><strong>공식 계정 전환</strong><p>원장님 승인 후</p></div>
+  </div>
+
+  <div class="quote" style="margin-top: 2rem; background: var(--brand-soft); border-radius: 12px;">
+    <strong style="color: var(--brand-deep);">합격 기준은 어떻게 결정하나요?</strong><br>
+    <span style="color: var(--ink-soft);">원장님이 승인한 톤·문구·금지어 기준으로, 5회 이상 연속 합격 시 공식 계정 전환을 제안드립니다.<br>원장님 판단이 우선이며, 언제든 테스트 계정으로 되돌릴 수 있습니다.</span>
+  </div>
+</section>
+
+<!-- ============ Section 5: 관리자 페이지 소개 ============ -->
+<section id="admin" style="background: #f5f5f4; padding: 4rem 2rem;">
+  <div class="section-eyebrow">관리자 페이지</div>
+  <h2 class="section-title">소희가 어떻게 일하는지<br>한눈에 확인합니다.</h2>
+  <p class="section-sub">원장님은 대시보드에서 "오늘 소희가 한 일"만 확인하면 됩니다. 심화 상담이 필요한 항목만 모아서 보여드립니다.</p>
+
+  <div class="dashboard-mock">
+    <div class="dashboard-mock-head">
+      <div>
+        <h4>🌸 운영 대시보드 — 초기 파트너 매장</h4>
+        <small>2026년 7월 · 소희의 오늘 활동 (예시)</small>
+      </div>
+      <span class="status">활성</span>
+    </div>
+    <div class="dash-kpis">
+      <div class="dash-kpi"><span class="num">7</span><small>생성 콘텐츠</small></div>
+      <div class="dash-kpi"><span class="num">3</span><small>게시 예정</small></div>
+      <div class="dash-kpi"><span class="num">12</span><small>확인한 문의</small></div>
+      <div class="dash-kpi"><span class="num">9</span><small>기초응대 처리</small></div>
+      <div class="dash-kpi"><span class="num" style="color:var(--warn)">2</span><small>원장님 확인 필요</small></div>
+      <div class="dash-kpi"><span class="num">1</span><small>주의 필요</small></div>
+    </div>
+    <div class="dash-list">
+      <strong>원장님 확인 필요 2건:</strong><br>
+      • 문의 #1042 — "잔흔 정도와 시술 가능 여부" 사진 상담 요청 → 사진 상담 채널로 연결됨<br>
+      • "가격 조정 가능한가요?" 문의 → 원장님께 인계됨
+    </div>
+  </div>
+
+  <div class="grid" style="margin-top: 2rem;">
+    <div class="card"><span class="card-icon">🏪</span><h3>사업장 프로필</h3><p>RAG·페르소나 기반이 되는 상호·업종·영업시간·가격표·채널 정보</p></div>
+    <div class="card"><span class="card-icon">🎭</span><h3>소희 페르소나</h3><p>말투·존칭·브랜드 어휘·금지어·인계 규칙 (basic / cafe / salon / expert)</p></div>
+    <div class="card"><span class="card-icon">📚</span><h3>지식베이스 / RAG</h3><p>FAQ·가격표·시술 안내·후기·블로그 레퍼런스 (출처 추적)</p></div>
+    <div class="card"><span class="card-icon">🔌</span><h3>채널 관리</h3><p>인스타·스레드·블로그·플레이스·당근·상담 채널별 상태</p></div>
+    <div class="card"><span class="card-icon">📅</span><h3>콘텐츠 캘린더</h3><p>주간/월간 캘린더에서 콘텐츠 초안·예약·게시 현황 관리</p></div>
+    <div class="card"><span class="card-icon">🛠️</span><h3>스킬 / 액션</h3><p>콘텐츠 생성·문의 분류·사진 상담 연결·인계 처리 등 단위 작업</p></div>
+    <div class="card"><span class="card-icon">🧪</span><h3>테스트 랩</h3><p>테스트 계정에서 페르소나·금지어·RAG 응답 품질 사전 검증</p></div>
+    <div class="card"><span class="card-icon">📈</span><h3>리포트 / 운영 로그</h3><p>일일·주간·월간 보고 + AI 생성·게시·실패 로그 (감사용)</p></div>
+  </div>
+
+  <h3 style="text-align:center; margin: 3rem 0 1rem; font-size: 1.25rem;">🎭 페르소나 4종 — 매장 톤에 맞춰 선택</h3>
+  <div class="grid" style="max-width: 920px; margin: 0 auto;">
+    <div class="card" style="border-left: 4px solid #f9a8d4;">
+      <strong style="color: #be185d;">🌸 소희 베이직 (sohee_basic)</strong>
+      <p style="font-size: 0.88rem;">차분 · 고급 · 자연스러움 · 뷰티샵 기본 톤. 페르소나 키: <code>sohee_basic</code></p>
+    </div>
+    <div class="card" style="border-left: 4px solid #a16207;">
+      <strong style="color: #92400e;">☕ 소희 카페 (sohee_cafe)</strong>
+      <p style="font-size: 0.88rem;">친근 · 따뜻 · 일상 톤. 카페·소공인 매장용. 페르소나 키: <code>sohee_cafe</code></p>
+    </div>
+    <div class="card" style="border-left: 4px solid #0d9488;">
+      <strong style="color: #115e59;">✂️ 소희 살롱 (sohee_salon)</strong>
+      <p style="font-size: 0.88rem;">전문 · 정밀 · 시술 안내형. 살롱·네일·왁싱·피부관리 매장. 페르소나 키: <code>sohee_salon</code></p>
+    </div>
+    <div class="card" style="border-left: 4px solid #1e40af;">
+      <strong style="color: #1e3a8a;">💼 소희 전문가 (sohee_expert)</strong>
+      <p style="font-size: 0.88rem;">깊이 · 신뢰 · 의료 연계형. 시술 난이도가 높은 매장·에스테틱 매장. 페르소나 키: <code>sohee_expert</code></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ Section 6: 초기 파트너 사례 (익명) ============ -->
+<section id="case">
+  <div class="section-eyebrow">초기 파트너</div>
+  <h2 class="section-title">1인 뷰티샵 초기 파트너와 함께<br>기준을 만들어갑니다.</h2>
+  <p class="section-sub">예약제 뷰티샵 파일럿 매장에서, 실제 채널 운영 검증을 진행 중입니다. 공개 사례는 익명화되어 제공됩니다.</p>
+
+  <div class="grid-3">
+    <div class="card">
+      <span class="card-tag">파일럿</span>
+      <span class="card-icon">🏪</span>
+      <h3>초기 파트너 매장</h3>
+      <p>
+        <strong>업종:</strong> 1인 뷰티샵 (파일럿)<br>
+        <strong>위치:</strong> 수도권 (익명)<br>
+        <strong>운영 채널:</strong> 인스타그램 · 스레드 · 당근 · 네이버 블로그 · 네이버 플레이스 · 사진 상담 · 1:1 문의<br>
+        <strong>검증 항목:</strong> 브랜드 기준 정리 · 콘텐츠 품질 · 기초문의 분류 · 사진 상담 흐름 · 원장님 인계 루틴
+      </p>
+    </div>
+    <div class="card">
+      <span class="card-tag">기본 톤</span>
+      <span class="card-icon">🌸</span>
+      <h3>소희 베이직 (sohee_basic)</h3>
+      <p>
+        <strong>이름:</strong> 소희<br>
+        <strong>역할:</strong> 매장 AI 마케팅 직원<br>
+        <strong>톤:</strong> 차분 · 고급 · 신뢰감 · 자연스러움<br>
+        <strong>강조 키워드:</strong> 자연스러운 결과 · 얼굴형 맞춤 디자인 · 퍼스널 컨설팅 · 사진 상담 · 예약 안내<br>
+        <strong>금지어:</strong> 100% 안전 · 부작용 없음 · 무조건 자연스러움 · 완벽 보장 · 최저가 · 무조건 가능
+      </p>
+    </div>
+    <div class="card">
+      <span class="card-tag">인계 규칙</span>
+      <span class="card-icon">⚠️</span>
+      <h3>원장님께 인계할 주제</h3>
+      <p>
+        • 기존 잔흔 판단 · 피부 상태 · 시술 가능 여부<br>
+        • 클레임 · 가격 조정 · 환불<br>
+        • 민감한 고객 사정<br>
+        • 의료적 판단처럼 보일 수 있는 모든 답변
+      </p>
+    </div>
+  </div>
+
+  <h3 style="text-align:center; margin: 3rem 0 1rem; font-size: 1.15rem;">🎭 매장 톤에 맞춰 페르소나를 선택할 수 있습니다</h3>
+  <div class="grid" style="max-width: 920px; margin: 0 auto;">
+    <div class="card" style="border-left: 4px solid #f9a8d4;"><strong style="color: #be185d;">🌸 베이직</strong><p style="font-size: 0.85rem;">차분 · 고급 · 자연스러움</p></div>
+    <div class="card" style="border-left: 4px solid #a16207;"><strong style="color: #92400e;">☕ 카페</strong><p style="font-size: 0.85rem;">친근 · 따뜻 · 일상</p></div>
+    <div class="card" style="border-left: 4px solid #0d9488;"><strong style="color: #115e59;">✂️ 살롱</strong><p style="font-size: 0.85rem;">전문 · 정밀 · 시술 안내</p></div>
+    <div class="card" style="border-left: 4px solid #1e40af;"><strong style="color: #1e3a8a;">💼 전문가</strong><p style="font-size: 0.85rem;">깊이 · 신뢰 · 의료 연계</p></div>
+  </div>
+</section>
+
+<!-- ============ Section 7: 적용 채널 ============ -->
+<section id="channels" style="background: #f5f5f4; padding: 4rem 2rem;">
+  <div class="section-eyebrow">적용 채널</div>
+  <h2 class="section-title">초기에는 우선순위 채널부터<br>안정적으로 적용합니다.</h2>
+  <p class="section-sub">모든 채널을 즉시 완전 자동화하지 않습니다. 매장별로 운영 기준을 쌓아가며 확장합니다.</p>
+
+  <div class="grid">
+    <div class="channel"><h3>📸 <span>인스타그램</span></h3><p>피드·릴스·스토리 콘텐츠와 기초 DM 응대</p><span class="status">초기 적용</span></div>
+    <div class="channel"><h3>🧵 <span>스레드</span></h3><p>짧은 톤의 인스타 연동 콘텐츠 + 댓글 응대</p><span class="status">초기 적용</span></div>
+    <div class="channel"><h3>📝 <span>네이버 블로그</span></h3><p>검색 고객용 설명형 · 불안 해소형 글</p><span class="status">초기 적용</span></div>
+    <div class="channel"><h3>📍 <span>네이버 플레이스</span></h3><p>업체 정보·사진·리뷰 답변·공지 업데이트</p><span class="status">초기 적용</span></div>
+    <div class="channel"><h3>🥕 <span>당근</span></h3><p>지역 고객 프로필 + 사진 상담 요청 연결</p><span class="status">초기 적용</span></div>
+    <div class="channel"><h3>📷 <span>사진 상담 (1:1)</span></h3><p>고객 사진·질문 수신 → 자동 분류 → 원장님 인계 또는 FAQ 연결</p><span class="status" style="background:#fce7f3; color:#be185d;">연결 채널</span></div>
+    <div class="channel"><h3>💌 <span>카카오 / 문자 / 전화</span></h3><p>상담 연결 채널 — 자동 응대 아님, 사람 인계</p><span class="status">상담 연결</span></div>
+  </div>
+
+  <p style="text-align:center; margin-top: 2rem; font-size: 0.85rem; color: var(--ink-muted);">* 채널별 자동화 범위는 매장 진단 후 협의합니다.</p>
+</section>
+
+<!-- ============ Section 8: 가격 ============ -->
+<section id="pricing">
+  <div class="section-eyebrow">가격</div>
+  <h2 class="section-title">가격 정책은 준비 중입니다.</h2>
+  <p class="section-sub">현재는 초기 파트너와 함께 실제 운영 품질을 검증하는 단계입니다.</p>
+
+  <div class="pricing-note">
+    <h3>정식 가격은 운영 안정화 후 공개</h3>
+    <p style="color: var(--ink-soft); margin: 1rem 0 2rem;">
+      현재 초기 파트너 운영 결과를 바탕으로<br>
+      정식 가격 정책을 공개할 예정입니다.<br>
+      일반 모집은 진행하지 않으며, 매장별 진단 후 도입 여부를 협의합니다.
+    </p>
+    <a href="#contact" class="cta">초기 도입 상담 신청하기</a>
+  </div>
+
+  <h3 style="text-align:center; margin: 3rem 0 1rem; font-size: 1.15rem;">💬 상담 진행 방식 (3단계)</h3>
+  <div class="grid-3" style="max-width: 920px; margin: 0 auto;">
+    <div class="card" style="border-top: 3px solid var(--brand);">
+      <strong style="color: var(--brand-deep);">1단계 · 매장 진단</strong>
+      <p style="font-size: 0.9rem;">사업장 자료·운영 채널·현재 페인포인트 확인. 무료 진단이며 비용은 청구되지 않습니다.</p>
+    </div>
+    <div class="card" style="border-top: 3px solid var(--accent);">
+      <strong style="color: var(--accent);">2단계 · 운영 범위 협의</strong>
+      <p style="font-size: 0.9rem;">소희가 맡을 업무·페르소나·금지어·인계 규칙·검증 기준을 매장별로 합의합니다.</p>
+    </div>
+    <div class="card" style="border-top: 3px solid var(--ink-muted);">
+      <strong style="color: var(--ink);">3단계 · 정식 도입 협의</strong>
+      <p style="font-size: 0.9rem;">운영 안정성 확인 후, 정식 가격·계약 조건을 협의합니다. 일반 모집은 진행하지 않습니다.</p>
+    </div>
+  </div>
+
+  <p style="text-align:center; margin-top: 2rem; font-size: 0.82rem; color: var(--ink-muted);">* 본 서비스는 "운영형 AI 마케팅 직원" 서비스이며 매출/예약/상위노출을 보장하지 않습니다.</p>
+</section>
+
+<!-- ============ Section 9: FAQ ============ -->
+<section id="faq" style="background: #f5f5f4; padding: 4rem 2rem;">
+  <div class="section-eyebrow">FAQ</div>
+  <h2 class="section-title">자주 묻는 질문</h2>
+
+  <div class="faq">
+    <details class="faq-item" open>
+      <summary class="faq-q">자동화 교육과 뭐가 다른가요?</summary>
+      <p class="faq-a">교육은 사장님이 배우고 직접 운영해야 합니다. 소희 프로젝트는 전문가가 세팅하고 AI 직원이 실제 업무를 수행하는 운영형 서비스입니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">소희가 모든 문의를 자동으로 답하나요?</summary>
+      <p class="faq-a">아닙니다. 기본 문의는 안내할 수 있지만, 가격 조정, 클레임, 피부 상태, 시술 가능 여부 등 민감한 상담은 원장님께 인계합니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">공식 계정에 바로 게시되나요?</summary>
+      <p class="faq-a">아닙니다. 초기에는 테스트 계정에서 품질을 검증하고, 이후 사장님이 승인한 뒤 공식 계정 운영으로 전환합니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">어떤 업종에 잘 맞나요?</summary>
+      <p class="faq-a">초기에는 눈썹샵, 네일샵, 피부관리실, 속눈썹샵, 왁싱샵, 두피관리샵 등 뷰티 업종에 집중합니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">사장님은 뭘 하면 되나요?</summary>
+      <p class="faq-a">초기 자료 제공, 브랜드 톤 피드백, 공식 전환 승인, 심화상담 대응만 하면 됩니다. 반복적인 홍보 업무는 소희가 맡는 구조를 목표로 합니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">가격은 얼마인가요?</summary>
+      <p class="faq-a">현재 가격 정책은 준비 중이며, 초기 파트너 운영 결과를 바탕으로 정식 정책을 공개할 예정입니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">어떻게 시작하나요?</summary>
+      <p class="faq-a">매장별 진단 후 도입 여부를 협의합니다. 상담 신청 후 운영팀이 사업장 자료와 채널을 확인한 뒤 제안드립니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">원장님 검수는 어떻게 이루어지나요?</summary>
+      <p class="faq-a">테스트 계정에서 생성된 콘텐츠·응대 내용은 대시보드 검수 큐에 쌓이고, 원장님이 승인/반려/수정 의사를 표시하면 그 피드백이 페르소나 학습에 반영됩니다.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">데이터는 어떻게 다뤄지나요?</summary>
+      <p class="faq-a">고객 사진·문의·내부 자료는 매장별 격리된 환경에서만 사용됩니다. 운영 종료 시 데이터 반출 또는 삭제를 선택할 수 있으며, 자세한 내용은 개인정보처리방침을 참고하세요.</p>
+    </details>
+    <details class="faq-item">
+      <summary class="faq-q">중도에 운영을 중단할 수 있나요?</summary>
+      <p class="faq-a">예. 정식 도입 후에는 계약 조건에 따라 중단할 수 있으며, 데이터 처리 방식(반출/삭제)을 사전에 선택합니다. 테스트 단계에서는 언제든 무상으로 중단 가능합니다.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ============ Contact / 상담 신청 ============ -->
+<section id="contact" style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); padding: 4rem 2rem;">
+  <div class="section-eyebrow">초기 도입 상담 신청</div>
+  <h2 class="section-title">매장 진단 후<br>도입 여부를 함께 협의합니다.</h2>
+  <p class="section-sub">아래 정보를 남겨주시면, 도입 상담 일정에 따라 운영팀이 개별 회신드립니다.</p>
+
+  <form class="contact-form" id="contact-form" name="contact" method="POST" action="/contact" netlify netlify-honeypot="bot-field" data-netlify="true" style="max-width: 560px; margin: 2rem auto 0; background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.06);">
+    <input type="hidden" name="form-name" value="contact">
+    <p hidden><label>Don't fill: <input name="bot-field"></label></p>
+
+    <label style="display:block; margin-bottom: 1rem;">
+      <span style="display:block; font-weight:600; margin-bottom: 0.4rem; color:var(--ink);">매장명 (선택)</span>
+      <input type="text" name="store_name" placeholder="예: 1인 뷰티샵" style="width:100%; padding:0.7rem; border:1px solid #e7e5e4; border-radius:8px; font-size:1rem;">
+    </label>
+
+    <label style="display:block; margin-bottom: 1rem;">
+      <span style="display:block; font-weight:600; margin-bottom: 0.4rem; color:var(--ink);">업종 <span style="color:var(--brand);">*</span></span>
+      <select name="industry" required style="width:100%; padding:0.7rem; border:1px solid #e7e5e4; border-radius:8px; font-size:1rem; background:white;">
+        <option value="">선택해 주세요</option>
+        <option value="eyebrow">눈썹 / 문신</option>
+        <option value="nail">네일</option>
+        <option value="skincare">피부관리</option>
+        <option value="lash">속눈썹</option>
+        <option value="waxing">왁싱</option>
+        <option value="scalp">두피관리</option>
+        <option value="other">기타 뷰티</option>
+      </select>
+    </label>
+
+    <label style="display:block; margin-bottom: 1rem;">
+      <span style="display:block; font-weight:600; margin-bottom: 0.4rem; color:var(--ink);">연락처 (이메일 또는 카카오톡 ID) <span style="color:var(--brand);">*</span></span>
+      <input type="text" name="contact_channel" required placeholder="회신 가능한 이메일을 권장드립니다" style="width:100%; padding:0.7rem; border:1px solid #e7e5e4; border-radius:8px; font-size:1rem;">
+    </label>
+
+    <label style="display:block; margin-bottom: 1rem;">
+      <span style="display:block; font-weight:600; margin-bottom: 0.4rem; color:var(--ink);">운영 채널 (복수 선택 가능)</span>
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:0.4rem; margin-top:0.4rem;">
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="instagram"> 인스타그램</label>
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="thread"> 스레드</label>
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="blog"> 네이버 블로그</label>
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="place"> 네이버 플레이스</label>
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="karrot"> 당근</label>
+        <label style="font-weight:400;"><input type="checkbox" name="channels[]" value="dm"> 카카오/문자/전화</label>
+      </div>
+    </label>
+
+    <label style="display:block; margin-bottom: 1.5rem;">
+      <span style="display:block; font-weight:600; margin-bottom: 0.4rem; color:var(--ink);">현재 가장 힘든 점 (선택)</span>
+      <textarea name="pain_point" rows="3" placeholder="홍보, 콘텐츠, 문의 응대 등 사장님이 시간을 뺏기는 부분" style="width:100%; padding:0.7rem; border:1px solid #e7e5e4; border-radius:8px; font-size:1rem; resize:vertical;"></textarea>
+    </label>
+
+    <button type="submit" class="cta" style="width:100%; border:none; cursor:pointer; font-size:1rem;">상담 신청 보내기</button>
+
+    <p style="margin-top: 1rem; font-size: 0.8rem; color: var(--ink-muted); text-align:center;">
+      제출 시 <a href="https://purpleant1011.github.io/sohee/p/privacy/" style="color: var(--brand);">개인정보처리방침</a>에 동의합니다.
+    </p>
+  </form>
+
+  <div style="max-width: 560px; margin: 1.5rem auto 0; text-align:center; font-size: 0.85rem; color: var(--ink-soft);">
+    <strong style="color: var(--brand-deep);">처리 안내</strong><br>
+    도입 상담 일정은 운영팀 사정에 따라 개별 안내됩니다.
+  </div>
+</section>
+
+<!-- ============ Section 14: 신뢰 + CTA ============ -->
+<section class="cta-section">
+  <h2>우리 매장의 홍보와 응대를<br>소희에게 맡겨보세요.</h2>
+  <p>시술은 원장님이, 홍보와 문의응대는 소희가. 먼저 매장 진단부터 받아보세요.</p>
+
+  <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:1.5rem; margin: 2rem 0; font-size: 0.9rem;">
+    <span style="background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 8px;">✓ 전문가가 직접 세팅</span>
+    <span style="background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 8px;">✓ 테스트 계정 검증 후 공식 전환</span>
+    <span style="background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 8px;">✓ 심화 상담은 원장님께 인계</span>
+    <span style="background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 8px;">✓ 데이터 격리 운영</span>
+  </div>
+
+  <a href="#contact" class="cta">초기 도입 상담 신청하기</a>
+  <p style="font-size: 0.78rem; margin-top: 1.5rem; opacity: 0.7;">* 매출/예약/상위노출을 보장하지 않습니다. · 정식 가격은 운영 안정화 후 공개됩니다.</p>
+</section>
+
+<!-- ============ Footer ============ -->
+<footer>
+  <div class="inner">
+    <div>
+      <h4>sohee · 운영형 AI 마케팅 직원</h4>
+      <p style="font-size: 0.85rem; color: #a8a29e; margin: 0;">뷰티샵 원장님을 위한 운영형 AI 마케팅 직원 서비스</p>
+      <p style="font-size: 0.78rem; color: #78716c; margin: 0.5rem 0 0;">초기 파트너 모집 중 · 정식 가격은 검증 후 공개</p>
+    </div>
+    <div>
+      <h4>서비스</h4>
+      <a href="https://purpleant1011.github.io/sohee/#solution">소희가 하는 일</a>
+      <a href="https://purpleant1011.github.io/sohee/#case">초기 파트너 사례</a>
+      <a href="https://purpleant1011.github.io/sohee/#channels">적용 채널</a>
+      <a href="https://purpleant1011.github.io/sohee/#pricing">가격 안내</a>
+    </div>
+    <div>
+      <h4>문의</h4>
+      <a href="#contact">매장 도입 상담 신청</a>
+    </div>
+    <div>
+      <h4>회원</h4>
+      <a class="nav-login" href="https://peripheral-oasis-certificates-antiques.trycloudflare.com/app/login" target="_blank" rel="noopener noreferrer">로그인</a>
+    </div>
+    <div>
+      <h4>법적 고지</h4>
+      <a href="https://purpleant1011.github.io/sohee/p/terms/">이용약관</a>
+      <a href="https://purpleant1011.github.io/sohee/p/privacy/">개인정보처리방침</a>
+    </div>
+  </div>
+  <div class="legal">
+    © 2026 소희 프로젝트. 모든 권리 보유.<br>
+    본 서비스는 "운영형 AI 마케팅 직원" 서비스이며 매출/예약/상위노출을 보장하지 않습니다.<br>
+    정식 가격은 검증 후 공개되며, 일반 모집은 진행하지 않습니다.
+  </div>
+</footer>
+
+<!-- ============ 로그인 안내 (GitHub Pages 데모) ============ -->
+<!--
+  2026-07-12 변경: cross-origin POST는 HTML form 표준상 origin이 null로 가서
+  Rails 8 forgery_protection_origin_check에 의해 거부됨. 모달 대신 단순 링크로 변경.
+  사용자는 trycloudflare 도메인에서 직접 로그인 → origin 정상.
+-->
+<div style="margin: 1rem auto 0; max-width: 420px; padding: 1.25rem 1.5rem; background: #fff; border: 1px solid var(--brand-soft, #f5e1d6); border-radius: 12px; text-align: center;">
+  <p style="margin: 0 0 0.6rem; font-size: 0.92rem; color: var(--brand-deep); font-weight: 600;">소희 작업실에 오신 것을 환영합니다</p>
+  <p style="margin: 0 0 1rem; font-size: 0.82rem; color: #78716c; line-height: 1.5;">등록된 사업장 운영진만 접근할 수 있습니다.<br>데모 시연용 외부 접속 도메인을 통해 로그인해 주세요.</p>
+  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+    <a href="https://peripheral-oasis-certificates-antiques.trycloudflare.com/app/login" target="_blank" rel="noopener noreferrer"
+       style="display: inline-block; padding: 0.75rem 1rem; background: var(--brand-deep); color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.95rem;">
+      소희 작업실 로그인 →
+    </a>
+    <a href="https://peripheral-oasis-certificates-antiques.trycloudflare.com/contact" target="_blank" rel="noopener noreferrer"
+       style="display: inline-block; padding: 0.7rem 1rem; background: #fff; color: var(--brand-deep); border: 1px solid var(--brand-deep); border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9rem;">
+      도입 상담 신청하기 (셀프 가입 없음)
+    </a>
+  </div>
+  <p style="margin: 0.9rem 0 0; font-size: 0.75rem; color: #a8a29e; line-height: 1.5;">
+    외부 접속 도메인은 cloudflared quick tunnel — 재시작 시 변경될 수 있음
+  </p>
+</div>
+<script>
+  // SOHEE_APP_HOST는 호환을 위해 유지 (기존 다른 곳에서 참조 가능)
+  var SOHEE_APP_HOST = 'https://peripheral-oasis-certificates-antiques.trycloudflare.com';
+
+  // nav 로그인 클릭은 trycloudflare 도메인으로 직접 이동 (cross-origin form POST 회피)
+  document.addEventListener('DOMContentLoaded', function () {
+    var navLogin = document.querySelector('a.nav-login');
+    if (navLogin) {
+      navLogin.setAttribute('href', SOHEE_APP_HOST + '/app/login');
+      navLogin.setAttribute('target', '_blank');
+      navLogin.setAttribute('rel', 'noopener noreferrer');
+    }
+  });
+</script>
+
+</body>
+</html>
