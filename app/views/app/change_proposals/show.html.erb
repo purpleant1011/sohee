@@ -1,0 +1,60 @@
+<% content_for :title, "수정 제안 검토 · 소희" %>
+
+<%= render "shared/page_header", title: "📝 수정 제안 검토", subtitle: "#{@proposal.target_kind}.#{@proposal.target_field}" %>
+
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 p-6 space-y-4">
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+    <div>
+      <div class="text-xs text-slate-500">상태</div>
+      <% badge_class = case @proposal.status
+         when "approved" then "bg-green-100 text-green-700"
+         when "rejected" then "bg-red-100 text-red-700"
+         when "applied"  then "bg-blue-100 text-blue-700"
+         else "bg-amber-100 text-amber-700" end %>
+      <span class="px-2 py-0.5 rounded-full <%= badge_class %>"><%= @proposal.status %></span>
+    </div>
+    <div><div class="text-xs text-slate-500">생성</div><%= @proposal.created_at.strftime("%Y-%m-%d %H:%M") %></div>
+    <div><div class="text-xs text-slate-500">만료</div><%= @proposal.expires_at&.strftime("%Y-%m-%d %H:%M") %></div>
+    <div><div class="text-xs text-slate-500">결정</div><%= @proposal.decided_at&.strftime("%Y-%m-%d %H:%M") || "—" %></div>
+  </div>
+
+  <div>
+    <div class="text-xs text-slate-500 mb-1">변경 사유</div>
+    <div class="text-sm text-slate-800 whitespace-pre-line"><%= @proposal.reason %></div>
+  </div>
+
+  <% if @proposal.proposed_payload.present? %>
+    <div>
+      <div class="text-xs text-slate-500 mb-1">제안 값</div>
+      <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs overflow-x-auto"><%= JSON.pretty_generate(@proposal.proposed_payload) rescue @proposal.proposed_payload.inspect %></pre>
+    </div>
+  <% end %>
+
+  <% if @proposal.previous_payload.present? %>
+    <div>
+      <div class="text-xs text-slate-500 mb-1">기존 값</div>
+      <pre class="bg-slate-50 border border-slate-200 rounded p-3 text-xs overflow-x-auto"><%= JSON.pretty_generate(@proposal.previous_payload) rescue @proposal.previous_payload.inspect %></pre>
+    </div>
+  <% end %>
+
+  <% if @proposal.user_quote.present? %>
+    <div>
+      <div class="text-xs text-slate-500 mb-1">원장님 발화</div>
+      <blockquote class="border-l-4 border-blue-400 bg-blue-50 p-3 text-sm text-slate-700 italic">
+        "<%= @proposal.user_quote %>"
+      </blockquote>
+    </div>
+  <% end %>
+
+  <% if @proposal.pending? %>
+    <div class="flex gap-2 pt-4 border-t border-slate-200">
+      <%= button_to "✅ 승인", app_approve_change_proposal_path(@proposal), method: :post, class: "px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm" %>
+      <%= button_to "❌ 거부", app_reject_change_proposal_path(@proposal), method: :post, class: "px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 text-sm", data: { confirm: "정말 거부하시겠습니까?" } %>
+      <%= link_to "← 목록으로", app_change_proposals_path, class: "px-4 py-2 text-slate-600 hover:text-slate-800 text-sm" %>
+    </div>
+  <% else %>
+    <div class="pt-4 border-t border-slate-200">
+      <%= link_to "← 목록으로", app_change_proposals_path, class: "px-4 py-2 text-slate-600 hover:text-slate-800 text-sm" %>
+    </div>
+  <% end %>
+</div>

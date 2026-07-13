@@ -1,0 +1,109 @@
+<% content_for :title, "Discord 대화 · 소희" %>
+
+<%= render "shared/page_header", title: "💬 Discord에서 소희와 대화", subtitle: "원장님이 Discord 에서 보내신 메시지와 그 결과 (수정 제안 등)를 확인합니다." %>
+
+<%# 상태 요약 카드 %>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+    <div class="text-xs text-slate-500">워크스페이스</div>
+    <div class="text-xl font-semibold"><%= @workspace ? @workspace.guild_name : "미연결" %></div>
+    <div class="text-xs text-slate-400 mt-1"><%= @workspace ? "default: ##{@workspace.default_channel_name}" : "" %></div>
+  </div>
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+    <div class="text-xs text-slate-500">최근 메시지</div>
+    <div class="text-xl font-semibold"><%= @recent_events.size %>건</div>
+    <div class="text-xs text-slate-400 mt-1">최근 50건 표시</div>
+  </div>
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+    <div class="text-xs text-slate-500">대화 / 교육</div>
+    <div class="text-xl font-semibold"><%= @training_events.size %>건</div>
+    <div class="text-xs text-slate-400 mt-1">change_request + training</div>
+  </div>
+  <div class="bg-white rounded-lg p-4 shadow-sm border border-slate-200">
+    <div class="text-xs text-slate-500">대기 중인 수정 제안</div>
+    <div class="text-xl font-semibold text-amber-600"><%= @pending_proposals.size %>건</div>
+    <div class="text-xs text-slate-400 mt-1">
+      <%= link_to "승인하러 가기 →", app_change_proposals_path, class: "text-blue-600 hover:underline" %>
+    </div>
+  </div>
+</div>
+
+<%# 탭 %>
+<div class="flex gap-2 mb-4 border-b border-slate-200">
+  <% [["recent", "📨 최근 메시지", @recent_events.size],
+       ["training", "🎓 대화·교육", @training_events.size],
+       ["changes", "📝 수정 제안", @pending_proposals.size]].each do |key, label, count| %>
+    <%= link_to app_discord_path(tab: key),
+        class: "px-4 py-2 text-sm border-b-2 #{'border-blue-500 text-blue-600 font-medium' if @tab == key} #{'border-transparent text-slate-500 hover:text-slate-700' if @tab != key}" do %>
+      <%= label %> (<%= count %>)
+    <% end %>
+  <% end %>
+</div>
+
+<% if @recent_events.empty? && @workspace.nil? %>
+  <%= render "shared/empty_state",
+        icon: "🔌",
+        title: "Discord 워크스페이스가 연결되지 않았습니다",
+        description: "원장님 Discord 서버와 소희 봇이 연결되어야 대화가 시작됩니다. 운영팀에 연결을 요청해주세요.",
+        cta_label: "운영팀에 요청하기",
+        cta_path: "mailto:ops@soheeproject.example" %>
+<% else %>
+  <% case @tab %>
+  <% when "training" %>
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 divide-y divide-slate-100">
+      <% if @training_events.empty? %>
+        <%= render "shared/empty_state", icon: "🎓", title: "아직 교육 대화가 없습니다", description: "원장님이 Discord에서 '앞으로는 이렇게 답해' 같은 메시지를 보내면 여기에 표시됩니다." %>
+      <% else %>
+        <% @training_events.each do |event| %>
+          <div class="p-4 hover:bg-slate-50">
+            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+              <span>📨 <%= event.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"><%= event.intent %></span>
+              <% if event.processed %>
+                <span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700">처리됨</span>
+              <% else %>
+                <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">대기</span>
+              <% end %>
+            </div>
+            <div class="text-sm text-slate-800"><%= event.content_raw.to_s.truncate(280) %></div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% when "changes" %>
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 divide-y divide-slate-100">
+      <% if @pending_proposals.empty? %>
+        <%= render "shared/empty_state", icon: "📝", title: "대기 중인 수정 제안이 없습니다", description: "원장님이 보낸 메시지에서 변경이 필요한 부분이 감지되면 자동으로 카드가 만들어집니다." %>
+      <% else %>
+        <% @pending_proposals.each do |p| %>
+          <div class="p-4 hover:bg-slate-50">
+            <div class="flex items-center justify-between mb-2">
+              <div class="text-xs text-slate-500">
+                <%= p.target_kind %>.<%= p.target_field %> · <%= time_ago_in_words(p.created_at) %> 전
+              </div>
+              <span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs">대기</span>
+            </div>
+            <div class="text-sm text-slate-700 mb-2"><%= p.reason %></div>
+            <%= link_to "자세히 보기 →", app_change_proposal_path(p), class: "text-sm text-blue-600 hover:underline" %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 divide-y divide-slate-100">
+      <% if @recent_events.empty? %>
+        <%= render "shared/empty_state", icon: "💬", title: "아직 메시지가 없습니다", description: "워크스페이스에 메시지를 보내면 여기에 표시됩니다." %>
+      <% else %>
+        <% @recent_events.each do |event| %>
+          <div class="p-4 hover:bg-slate-50">
+            <div class="flex items-center gap-2 text-xs text-slate-500 mb-1">
+              <span>📨 <%= event.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+              <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600"><%= event.intent %></span>
+            </div>
+            <div class="text-sm text-slate-800"><%= event.content_raw.to_s.truncate(280) %></div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
