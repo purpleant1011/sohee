@@ -159,7 +159,15 @@ Rails.application.routes.draw do
     get  "/handoffs/:id/edit",         to: "handoffs#edit",    as: :edit_handoff
     patch "/handoffs/:id",             to: "handoffs#update"
     post "/handoffs/:id/acknowledge",  to: "handoffs#acknowledge", as: :acknowledge_handoff
-    post "/handoffs/:id/resolve",      to: "handoffs#resolve", as: :resolve_handoff
+    post   "/handoffs/:id/resolve",      to: "handoffs#resolve", as: :resolve_handoff
+    # P2-2 (2026-07-13): Discord 대화 카드 + ChangeProposal 승인 카드 (사업자 포털)
+    get    "/discord",                     to: "discords#index",        as: :discord
+    get    "/change_proposals",            to: "change_proposals#index", as: :change_proposals
+    get    "/change_proposals/:id",        to: "change_proposals#show",  as: :change_proposal
+    post   "/change_proposals/:id/approve", to: "change_proposals#approve", as: :approve_change_proposal
+    post   "/change_proposals/:id/reject",  to: "change_proposals#reject",  as: :reject_change_proposal
+    # P2-3 (2026-07-13): Hermes ACK / 메시지 동기화 가시화
+    get    "/integrity",                   to: "integrities#show",      as: :integrity
     # P0-3 (2026-07-12): plans/billing/referrals placeholder 라우트 제거. 운영팀이 직접 협상한다.
     # get  "/plans",                     to: "plans#index",      as: :plans
     # get  "/billing",                   to: "billing#index",    as: :billing

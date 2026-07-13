@@ -50,6 +50,12 @@
           <% end %>
         <% end %>
       </a>
+      <a href="<%= app_change_proposals_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'change_proposals' %>">
+        🪄 변경 제안 (소희 학습)
+        <% if @current_account&.business_profile && (pending_cp = ChangeProposal.where(business_profile_id: @current_account.business_profile.id, status: 'pending').count) > 0 %>
+          <span class="ml-1 inline-flex items-center justify-center px-2 py-0.5 rounded-full bg-amber-500 text-white text-xs"><%= pending_cp %></span>
+        <% end %>
+      </a>
 
       <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">③ 콘텐츠</div>
       <a href="<%= app_content_items_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'content_items' %>">📅 콘텐츠 캘린더</a>
@@ -58,7 +64,9 @@
       <a href="<%= app_conversations_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'conversations' %>">💬 문의 응대</a>
 
       <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">⑤ 연결 상태</div>
+      <a href="<%= app_discord_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'discords' %>">💬 Discord 대화</a>
       <a href="<%= app_channels_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'channels' %>">🔌 채널 연결 상태</a>
+      <a href="<%= app_integrity_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'integrities' %>">🔄 메시지 동기화</a>
 
       <div class="px-4 py-2 bg-slate-50 border-b border-y border-slate-200 text-xs font-medium text-slate-500 uppercase tracking-wider mt-2">⑥ 보고서</div>
       <a href="<%= app_reports_path %>" class="block px-4 py-2.5 hover:bg-slate-50 <%= 'bg-emerald-50 text-emerald-700 font-medium border-l-4 border-emerald-500' if controller_name == 'reports' %>">📈 일간 / 주간 보고</a>

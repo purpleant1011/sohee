@@ -19,4 +19,22 @@ class ChannelConnection < ApplicationRecord
   def ready_for_publish?
     status == "active" && channel_scopes.where(publish_allowed: true).exists?
   end
+
+  # 24시간 내 3회 이상 실패 → 운영팀 알림
+  after_update_commit :notify_ops_of_recurring_failure
+
+  def recent_failure_count
+    PublicationAttempt.where(channel_connection_id: id, state: "failed")
+                      .where("created_at >= ?", 24.hours.ago).count
+  rescue StandardError
+    0
+  end
+
+  def notify_ops_of_recurring_failure
+    return unless saved_change_to_status? && status == "error"
+    return if recent_failure_count < 3
+    OpsNotifier.channel_failure(self, error_message.presence || "24시간 내 3회 이상 게시 실패")
+  rescue StandardError => e
+    Rails.logger.warn("[ChannelConnection#notify_ops] #{e.message}")
+  end
 end

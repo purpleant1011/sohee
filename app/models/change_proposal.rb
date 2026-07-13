@@ -82,4 +82,14 @@ class ChangeProposal < ApplicationRecord
   def set_expiry
     self.expires_at ||= 24.hours.from_now
   end
+
+  # 결정 (approved/rejected) 완료 → 운영팀 알림
+  after_update_commit :notify_ops_of_decision
+
+  def notify_ops_of_decision
+    return unless saved_change_to_status? && %w[approved rejected].include?(status)
+    OpsNotifier.change_proposal_decided(self)
+  rescue StandardError => e
+    Rails.logger.warn("[ChangeProposal#notify_ops] #{e.message}")
+  end
 end
