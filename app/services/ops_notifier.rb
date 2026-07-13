@@ -56,6 +56,16 @@ class OpsNotifier
       notify(KIND_CHANGE, proposal.business_profile_id, body, metadata: { change_proposal_id: proposal.id })
     end
 
+    def automation_rule_created(rule)
+      bp_name = rule.account&.business_profile&.trade_name.presence || rule.account&.business_profile&.legal_name.presence || "BP##{rule.account_id}"
+      body = "🤖 *자동 게시 규칙 승인 요청*\n" \
+             "사장님: `#{bp_name}`\n" \
+             "규칙: #{rule.name}\n" \
+             "의도: #{rule.intent_kind}\n" \
+             "→ #{Rails.application.routes.url_helpers.app_automation_rules_v2_url(host: 'blast-twins-finish-polyphonic.trycloudflare.com')}"
+      notify(KIND_CHANGE, rule.account_id, body, metadata: { automation_rule_id: rule.id })
+    end
+
     def change_proposal_decided(proposal)
       emoji = proposal.status == "approved" ? "✅" : "❌"
       bp_name = proposal.business_profile&.trade_name.presence || proposal.business_profile&.legal_name.presence || "BP##{proposal.business_profile_id}"

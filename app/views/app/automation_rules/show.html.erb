@@ -1,68 +1,116 @@
-<% content_for :title do %>자동화 규칙<% end %>
-<div class="px-6 py-8 max-w-5xl mx-auto">
-  <div class="flex items-center justify-between mb-6">
-    <div>
-      <h1 class="text-2xl font-semibold text-gray-900">⚙️ <%= @rule.name %></h1>
-      <p class="text-sm text-gray-500 mt-1"><%= @rule.natural_language %></p>
-    </div>
-    <div class="flex gap-2">
-      <%= button_to "즉시 실행", app_run_automation_rule_path(@rule), method: :post, class: "px-3 py-1.5 text-sm bg-indigo-600 text-white rounded" %>
-      <% if @rule.status == "active" %>
-        <%= button_to "일시정지", app_pause_automation_rule_path(@rule), method: :post, class: "px-3 py-1.5 text-sm bg-amber-100 text-amber-800 rounded" %>
-      <% else %>
-        <%= button_to "활성화", app_activate_automation_rule_path(@rule), method: :post, class: "px-3 py-1.5 text-sm bg-emerald-600 text-white rounded" %>
-      <% end %>
-      <%= link_to "수정", app_edit_automation_rule_path(@rule), class: "px-3 py-1.5 text-sm bg-gray-100 rounded" %>
-      <%= link_to "목록", app_automation_rules_path, class: "px-3 py-1.5 text-sm bg-gray-100 rounded" %>
-    </div>
-  </div>
+<% content_for :title, "규칙 상세 · 소희 프로젝트" %>
+<%
+  intent_labels = {
+    "post"        => "자동 게시",
+    "report"      => "보고서",
+    "reply"       => "자동 응답",
+    "faq_update"  => "FAQ 업데이트",
+    "data_export" => "데이터 백업"
+  }
+  status_color = {
+    "active" => "bg-emerald-100 text-emerald-700",
+    "draft"  => "bg-amber-100 text-amber-700",
+    "paused" => "bg-rose-100 text-rose-700"
+  }
+  exec_state_color = {
+    "succeeded" => "bg-emerald-100 text-emerald-700",
+    "failed"    => "bg-rose-100 text-rose-700",
+    "pending"   => "bg-slate-100 text-slate-700",
+    "running"   => "bg-sky-100 text-sky-700"
+  }
+%>
 
-  <div class="bg-white shadow rounded-lg p-6 mb-6 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-    <%
-      state_labels = {
-        "active"    => "동작 중",
-        "paused"    => "일시 정지",
-        "completed" => "완료",
-        "failed"    => "실패",
-        "running"   => "실행 중",
-        "queued"    => "대기 중"
-      }
-    %>
-    <div>
-      <p class="text-gray-500 text-xs">AI 직원</p>
-      <p class="font-semibold"><%= @rule.ai_employee&.name || "-" %></p>
-    </div>
-    <div>
-      <p class="text-gray-500 text-xs">상태</p>
-      <p><span class="px-2 py-0.5 rounded text-xs <%= @rule.status == 'active' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-200' %>"><%= state_labels[@rule.status] || @rule.status %></span></p>
-    </div>
-    <div>
-      <p class="text-gray-500 text-xs">주기</p>
-      <p class="font-semibold"><% sched = @rule.automation_schedules.first %><%= sched&.cadence || "—" %></p>
-    </div>
-    <div>
-      <p class="text-gray-500 text-xs">예약</p>
-      <p class="font-mono text-xs"><%= sched&.summary || "예약 없음" %></p>
-    </div>
-  </div>
+<div class="mb-4">
+  <a href="<%= app_automation_rules_v2_path %>" class="text-xs text-slate-500 hover:text-slate-700">← 자동 게시 규칙 목록</a>
+</div>
 
-  <div class="bg-white shadow rounded-lg p-6">
-    <h2 class="text-lg font-semibold mb-4">최근 실행</h2>
-    <% if @executions.any? %>
-      <table class="min-w-full text-sm">
-        <thead><tr class="text-left border-b"><th class="py-2">시각</th><th>상태</th><th>콘텐츠</th></tr></thead>
-        <tbody>
-          <% @executions.each do |ex| %>
-            <tr class="border-t">
-              <td class="py-2 text-xs text-gray-500"><%= ex.created_at&.strftime("%m-%d %H:%M") %></td>
-              <td><span class="px-2 py-0.5 text-xs rounded bg-gray-100"><%= state_labels[ex.state] || ex.state %></span></td>
-              <td><%= link_to ex.content_item_id ? "콘텐츠 ##{ex.content_item_id}" : "—", ex.content_item_id ? app_content_item_path(ex.content_item_id) : "#" %></td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
-    <% else %>
-      <p class="text-sm text-gray-400">아직 실행 이력이 없습니다.</p>
+<article class="rounded-lg border border-slate-200 bg-white p-6 mb-4">
+  <header class="flex items-start justify-between mb-3">
+    <div>
+      <h1 class="text-xl font-bold text-slate-900"><%= @rule.name %></h1>
+      <p class="text-sm text-slate-500 mt-1"><%= intent_labels[@rule.intent_kind] || @rule.intent_kind %></p>
+    </div>
+    <span class="text-xs px-3 py-1 rounded-full font-medium <%= status_color[@rule.status] %>">
+      <%= @rule.status %>
+    </span>
+  </header>
+
+  <p class="text-sm text-slate-700 mb-4"><%= @rule.natural_language %></p>
+
+  <% plan = (JSON.parse(@rule.structured_plan) rescue {}) %>
+  <% constraints = (JSON.parse(@rule.constraints) rescue {}) %>
+  <dl class="space-y-3 text-sm">
+    <div>
+      <dt class="text-xs text-slate-500">주기</dt>
+      <dd class="text-slate-700"><%= [plan["cadence"], plan["weekday"], plan["time"]].compact.join(" · ") || "—" %></dd>
+    </div>
+    <div>
+      <dt class="text-xs text-slate-500">채널</dt>
+      <dd class="text-slate-700"><%= plan["channel"] || "—" %></dd>
+    </div>
+    <% if @rule.ai_employee_id %>
+      <div>
+        <dt class="text-xs text-slate-500">담당 AI 직원</dt>
+        <dd class="text-slate-700">AI 직원 ##{@rule.ai_employee_id}</dd>
+      </div>
+    <% end %>
+    <% if @schedule %>
+      <div>
+        <dt class="text-xs text-slate-500">cron 표현식</dt>
+        <dd class="text-slate-700 font-mono text-xs"><%= @schedule.cron_expression || "—" %></dd>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <dt class="text-xs text-slate-500">다음 실행</dt>
+          <dd class="text-slate-700"><%= @schedule.next_run_at&.strftime("%Y-%m-%d %H:%M") || "예정 없음" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">마지막 실행</dt>
+          <dd class="text-slate-700"><%= @schedule.last_run_at&.strftime("%Y-%m-%d %H:%M") || "기록 없음" %></dd>
+        </div>
+      </div>
+    <% end %>
+    <% if @rule.approved_at %>
+      <div>
+        <dt class="text-xs text-slate-500">승인 일시</dt>
+        <dd class="text-slate-700"><%= @rule.approved_at.strftime("%Y-%m-%d %H:%M") %></dd>
+      </div>
+      <div>
+        <dt class="text-xs text-slate-500">승인 메모</dt>
+        <dd class="text-slate-700"><%= @rule.approval_notes %></dd>
+      </div>
+    <% end %>
+  </dl>
+
+  <div class="mt-4 flex gap-2">
+    <% if @rule.status == "draft" %>
+      <%= button_to "승인", app_approve_automation_rule_v2_path(@rule), method: :post, class: "rounded-md bg-emerald-600 text-white px-4 py-2 text-sm font-medium hover:bg-emerald-700" %>
+    <% elsif @rule.status == "active" %>
+      <%= button_to "일시중지", app_pause_automation_rule_v2_path(@rule), method: :post, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
+    <% elsif @rule.status == "paused" %>
+      <%= button_to "재개", app_resume_automation_rule_v2_path(@rule), method: :post, class: "rounded-md border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50" %>
     <% end %>
   </div>
-</div>
+</article>
+
+<% if @recent_executions.any? %>
+  <section class="rounded-lg border border-slate-200 bg-white p-6">
+    <h2 class="font-bold text-slate-900 mb-3">최근 실행 (10건)</h2>
+    <ul class="space-y-2">
+      <% @recent_executions.each do |exec| %>
+        <li class="text-xs flex items-center justify-between border-b border-slate-100 pb-2">
+          <div>
+            <span class="font-mono text-slate-700">##{exec.id}</span>
+            <span class="text-slate-500 ml-2"><%= exec.created_at.strftime("%Y-%m-%d %H:%M") %></span>
+            <% if exec.error_message.present? %>
+              <p class="text-rose-600 mt-1"><%= exec.error_message.first(120) %></p>
+            <% end %>
+          </div>
+          <span class="text-xs px-2 py-1 rounded-full <%= exec_state_color[exec.state] || 'bg-slate-100 text-slate-500' %>">
+            <%= exec.state %>
+          </span>
+        </li>
+      <% end %>
+    </ul>
+  </section>
+<% end %>

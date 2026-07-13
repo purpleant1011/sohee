@@ -1,0 +1,79 @@
+<% content_for :title, "게시 이력 · 소희 프로젝트" %>
+<%
+  state_color = {
+    "succeeded" => "bg-emerald-100 text-emerald-700",
+    "failed"    => "bg-rose-100 text-rose-700",
+    "pending"   => "bg-slate-100 text-slate-700"
+  }
+  state_label = { "succeeded" => "성공", "failed" => "실패", "pending" => "대기" }
+%>
+
+<div class="mb-6">
+  <h1 class="text-2xl font-bold text-slate-900">게시 이력</h1>
+  <p class="text-xs text-slate-500 mt-1">소희가 외부 채널에 게시한 모든 시도의 기록입니다. 실패 건은 운영팀이 확인 중입니다.</p>
+</div>
+
+<%# 4-카드 요약 (§20 "최근 성공/실패") %>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+  <%= render "shared/stat_card", label: "전체", value: @counts[:total], color: "slate", icon: "📋" %>
+  <%= render "shared/stat_card", label: "성공", value: @counts[:succeeded], color: "emerald", icon: "✅" %>
+  <%= render "shared/stat_card", label: "실패", value: @counts[:failed], color: "rose", icon: "⚠️" %>
+  <%= render "shared/stat_card", label: "대기", value: @counts[:pending], color: "slate", icon: "⏳" %>
+</div>
+
+<% if @last_success || @last_failure %>
+  <p class="text-xs text-slate-500 mb-4">
+    <% if @last_success %>마지막 성공: <%= @last_success.strftime("%Y-%m-%d %H:%M") %><% end %>
+    <% if @last_success && @last_failure %> · <% end %>
+    <% if @last_failure %>마지막 실패: <%= @last_failure.strftime("%Y-%m-%d %H:%M") %><% end %>
+  </p>
+<% end %>
+
+<%# 탭 %>
+<nav class="flex gap-2 border-b border-slate-200 mb-4">
+  <% [["recent", "최근 50건", @counts[:total]], ["failed", "실패 건", @counts[:failed]]].each do |tab_id, label, n| %>
+    <a href="<%= app_publication_history_path(tab: tab_id) %>"
+       class="px-4 py-2 text-sm font-medium <%= @tab == tab_id ? 'border-b-2 border-emerald-600 text-emerald-700' : 'text-slate-500 hover:text-slate-700' %>">
+      <%= label %> <span class="text-xs text-slate-400">(<%= n %>)</span>
+    </a>
+  <% end %>
+</nav>
+
+<% if @attempts.empty? %>
+  <%= render "shared/empty_state",
+             icon: "📡",
+             title: "해당 게시 이력이 없습니다.",
+             body: "콘텐츠를 게시하거나 자동 게시 규칙을 활성화하면 여기에 기록됩니다." %>
+<% else %>
+  <div class="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-slate-600 text-xs">
+        <tr>
+          <th class="text-left px-4 py-2">시각</th>
+          <th class="text-left px-4 py-2">채널</th>
+          <th class="text-left px-4 py-2">콘텐츠</th>
+          <th class="text-left px-4 py-2">상태</th>
+          <th class="text-left px-4 py-2">오류</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100">
+        <% @attempts.each do |a| %>
+          <tr class="hover:bg-slate-50">
+            <td class="px-4 py-2 text-xs text-slate-700"><%= a.created_at.strftime("%Y-%m-%d %H:%M") %></td>
+            <td class="px-4 py-2 text-xs text-slate-700">
+              <%= a.channel_connection&.kind&.humanize || "—" %>
+              <% if a.channel_connection&.handle %><span class="text-slate-400"> · <%= a.channel_connection.handle %></span><% end %>
+            </td>
+            <td class="px-4 py-2 text-xs text-slate-700">CI #<%= a.content_item_id %></td>
+            <td class="px-4 py-2">
+              <span class="text-xs px-2 py-1 rounded-full font-medium <%= state_color[a.state] || 'bg-slate-100 text-slate-500' %>">
+                <%= state_label[a.state] || a.state %>
+              </span>
+            </td>
+            <td class="px-4 py-2 text-xs text-rose-600"><%= a.error_message&.first(80) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+<% end %>

@@ -168,6 +168,14 @@ Rails.application.routes.draw do
     post   "/change_proposals/:id/reject",  to: "change_proposals#reject",  as: :reject_change_proposal
     # P2-3 (2026-07-13): Hermes ACK / 메시지 동기화 가시화
     get    "/integrity",                   to: "integrities#show",      as: :integrity
+    # P3-1 (2026-07-13): Integration Hub — 자동 게시 규칙 + 게시 이력 + test/official 분리
+    # (기존 /automations/rules 라우트와 충돌 회피: as 이름 차별화)
+    get    "/automation",                   to: "automation_rules#index", as: :automation_rules_v2
+    get    "/automation/:id",               to: "automation_rules#show",  as: :automation_rule_v2
+    post   "/automation/:id/approve",       to: "automation_rules#approve", as: :approve_automation_rule_v2
+    post   "/automation/:id/pause",         to: "automation_rules#pause",   as: :pause_automation_rule_v2
+    post   "/automation/:id/resume",        to: "automation_rules#resume",  as: :resume_automation_rule_v2
+    get    "/publication_history",          to: "publication_attempts#index", as: :publication_history
     # P0-3 (2026-07-12): plans/billing/referrals placeholder 라우트 제거. 운영팀이 직접 협상한다.
     # get  "/plans",                     to: "plans#index",      as: :plans
     # get  "/billing",                   to: "billing#index",    as: :billing

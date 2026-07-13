@@ -1,101 +1,62 @@
+# frozen_string_literal: true
+
+# P3-1 (2026-07-13): Integration Hub — 자동 게시 규칙 카드 (사업자 포털)
 class App::AutomationRulesController < App::BaseController
+  TAB_ACTIVE  = "active"
+  TAB_PENDING = "pending"
+  TAB_DRAFT   = "draft"
+  TAB_PAUSED  = "paused"
+  ALL_TABS    = [TAB_ACTIVE, TAB_PENDING, TAB_DRAFT, TAB_PAUSED].freeze
+
   def index
-    @rules = @current_account.automation_rules.includes(:ai_employee).order(:name)
+    @tab = ALL_TABS.include?(params[:tab]) ? params[:tab] : TAB_ACTIVE
+    base = AutomationRule.where(account_id: @current_account.id).order(created_at: :desc)
+    @rules = case @tab
+             when TAB_PENDING then base.where(status: "draft")
+             when TAB_DRAFT   then base.where(status: "draft")
+             when TAB_PAUSED  then base.where(status: "paused")
+             else                  base.where(status: "active")
+             end.limit(50)
+    @counts = {
+      active:  base.where(status: "active").count,
+      pending: base.where(status: "draft").count,
+      draft:   base.where(status: "draft").count,
+      paused:  base.where(status: "paused").count
+    }
   end
 
   def show
-    @rule = @current_account.automation_rules.find(params[:id])
-    @executions = @rule.automation_executions.order(created_at: :desc).limit(30)
+    @rule = AutomationRule.where(account_id: @current_account.id).find(params[:id])
+    @schedule = @rule.automation_schedules.first
+    @recent_executions = @rule.automation_executions.order(created_at: :desc).limit(10)
   end
 
-  def new
-    @rule = @current_account.automation_rules.build
-    @ai_employees = @current_account.ai_employees.order(:name)
-    @intents = ContentItem::KINDS if defined?(ContentItem::KINDS)
-  end
-
-  def create
-    @rule = @current_account.automation_rules.build(rule_params.except(:status))
-    @rule.account = @current_account
-    @rule.intent_kind ||= "post"
-    @rule.status = "active"
-    if @rule.save
-      sched = @rule.automation_schedules.first || @rule.automation_schedules.build
-      sched.account = @current_account
-      apply_schedule_from_params(sched)
-      sched.save!
-      redirect_to app_automation_rule_path(@rule), notice: "자동화 규칙을 생성했습니다."
+  def approve
+    @rule = AutomationRule.where(account_id: @current_account.id).find(params[:id])
+    actor = respond_to?(:current_user) ? current_user : nil
+    if @rule.status == "draft"
+      @rule.update!(
+        status: "active",
+        approved_by_user_id: actor&.id,
+        approved_at: Time.current,
+        approval_notes: "원장님 승인 (사업자 포털, #{Time.current.strftime('%Y-%m-%d %H:%M')})"
+      )
+      OpsNotifier.change_proposal_created(@rule) rescue nil
+      redirect_to app_automation_rule_v2_path(@rule), notice: "자동 게시 규칙을 승인했습니다. 다음 예정 시간부터 실행됩니다."
     else
-      flash[:alert] = @rule.errors.full_messages.to_sentence
-      redirect_to app_automation_rules_path
+      redirect_to app_automation_rule_v2_path(@rule), alert: "이미 처리된 규칙입니다."
     end
-  end
-
-  def edit
-    @rule = @current_account.automation_rules.find(params[:id])
-    @ai_employees = @current_account.ai_employees.order(:name)
-    @intents = ContentItem::KINDS if defined?(ContentItem::KINDS)
-  end
-
-  def update
-    @rule = @current_account.automation_rules.find(params[:id])
-    if @rule.update(rule_params)
-      @rule.update(status: "active") if @rule.status.blank?
-      sched = @rule.automation_schedules.first || @rule.automation_schedules.build
-      sched.account = @current_account
-      apply_schedule_from_params(sched)
-      sched.save!
-      redirect_to app_automation_rule_path(@rule), notice: "자동화 규칙을 수정했습니다."
-    else
-      flash[:alert] = @rule.errors.full_messages.to_sentence
-      redirect_to app_automation_rules_path
-    end
-  end
-
-  def destroy
-    @rule = @current_account.automation_rules.find(params[:id])
-    @rule.destroy
-    redirect_to app_automation_rules_path, notice: "규칙을 삭제했습니다."
-  end
-
-  def activate
-    @rule = @current_account.automation_rules.find(params[:id])
-    @rule.update(status: "active")
-    redirect_to app_automation_rule_path(@rule), notice: "규칙을 활성화했습니다."
   end
 
   def pause
-    @rule = @current_account.automation_rules.find(params[:id])
-    @rule.update(status: "paused")
-    redirect_to app_automation_rule_path(@rule), notice: "규칙을 일시정지했습니다."
+    @rule = AutomationRule.where(account_id: @current_account.id).find(params[:id])
+    @rule.update!(status: "paused") if @rule.status == "active"
+    redirect_to app_automation_rules_v2_path, notice: "일시중지했습니다."
   end
 
-  def run_now
-    @rule = @current_account.automation_rules.find(params[:id])
-    Automation::RunJob.perform_now(automation_rule_id: @rule.id, account_id: @current_account.id)
-    redirect_to app_automation_rule_path(@rule), notice: "즉시 실행했습니다."
-  rescue StandardError => e
-    flash[:alert] = "실행 실패: #{e.message}"
-    redirect_to app_automation_rule_path(@rule)
-  end
-
-  def dashboard
-    @executions = @current_account.automation_executions.order(created_at: :desc).limit(50)
-  end
-
-  private
-
-  def apply_schedule_from_params(sched)
-    sched.cadence = params[:cadence].presence || sched.cadence || "daily"
-    sched.cron_expression = params[:cron_expression] if params[:cron_expression].present?
-    sched.next_run_at = sched.compute_next_run_from(Time.current) if sched.respond_to?(:compute_next_run_from) && !sched.next_run_at
-  end
-
-  def rule_params
-    raw = params[:automation_rule]
-    return {} unless raw
-    raw = raw.to_unsafe_h if raw.respond_to?(:to_unsafe_h)
-    raw = raw.symbolize_keys if raw.is_a?(Hash)
-    raw.reject { |_, v| v.nil? || (v.respond_to?(:blank?) && v.blank?) }
+  def resume
+    @rule = AutomationRule.where(account_id: @current_account.id).find(params[:id])
+    @rule.update!(status: "active") if @rule.status == "paused"
+    redirect_to app_automation_rules_v2_path, notice: "재개했습니다."
   end
 end

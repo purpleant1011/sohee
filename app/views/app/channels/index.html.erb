@@ -63,6 +63,20 @@
           </span>
         </header>
 
+        <%# P3 test/official 분리 배지 — Regexp quoting 회피: LIKE 사용 %>
+        <% test_scope = c.channel_scopes.where("scope LIKE ?", "%test%").first %>
+        <% official_scope = c.channel_scopes.where("scope LIKE ?", "%official%").first %>
+        <% if test_scope || official_scope %>
+          <div class="flex gap-1 mb-3">
+            <% if test_scope %>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">테스트</span>
+            <% end %>
+            <% if official_scope %>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">공식</span>
+            <% end %>
+          </div>
+        <% end %>
+
         <dl class="space-y-2 text-sm">
           <div>
             <dt class="text-xs text-slate-500">가능한 업무</dt>

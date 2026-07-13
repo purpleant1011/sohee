@@ -6,6 +6,14 @@ class AutomationRule < ApplicationRecord
   has_many :automation_schedules, dependent: :destroy
   has_many :automation_executions, dependent: :destroy
 
+  after_create_commit :notify_ops_of_creation
+
+  def notify_ops_of_creation
+    OpsNotifier.automation_rule_created(self)
+  rescue StandardError => e
+    Rails.logger.warn("[AutomationRule] notify_ops_of_creation failed: #{e.message}")
+  end
+
   STATUSES = %w[draft active paused archived].freeze
   INTENT_KINDS = %w[post reply report faq_update data_export].freeze
 
