@@ -1,27 +1,50 @@
-<%# audit.html.erb — P4-3: AuditEvent.account_id 직접 매칭, 100개 limit %>
+<%# audit.html.erb — P4-3d: 감사 로그 + 통계 + 필터 탭 + 액터별 그룹핑 %>
 <% content_for :title, "#{@account.name} · 감사 로그 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
   <%= render partial: "platform/accounts/consoles/breadcrumb", current: "감사 로그" %>
 
-  <header class="mb-6 flex items-baseline justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-slate-900">감사 로그</h1>
-      <p class="text-sm text-slate-500 mt-1">
-        운영자/사장/AI 직원의 모든 행동을 시간 역순으로 표시합니다. 최근 100건.
-      </p>
-    </div>
-    <div class="text-sm text-slate-500">
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-        <%= @account.name %>
-      </span>
-    </div>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">📜 감사 로그</h1>
+    <p class="text-sm text-slate-500 mt-1">운영자/사장/AI 직원의 모든 행동을 시간 역순으로 표시합니다. 최대 100건.</p>
   </header>
 
+  <%# ── 4-stat ── %>
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-2">
+    <% [
+      ["전체",     @audit_stats[:total],  "slate"],
+      ["오늘",     @audit_stats[:today],  "emerald"],
+      ["에러/실패", @audit_stats[:errors], "rose"],
+      ["로그인",   @audit_stats[:logins], "indigo"]
+    ].each do |label, count, color| %>
+      <div class="rounded-lg border border-<%= color %>-200 bg-<%= color %>-50 p-3 text-center">
+        <div class="text-2xl font-bold text-<%= color %>-700"><%= count %></div>
+        <div class="text-xs text-slate-600 mt-0.5"><%= label %></div>
+      </div>
+    <% end %>
+  </section>
+
+  <%# ── 필터 탭 ── %>
+  <section class="flex gap-1 border-b border-slate-200">
+    <% [
+      ["all",     "전체"],
+      ["today",   "오늘"],
+      ["logins",  "로그인"],
+      ["changes", "변경/업데이트"]
+    ].each do |key, label| %>
+      <% is_current = (@audit_filter == key) || (key == "all" && @audit_filter == "all") %>
+      <a href="<%= platform_account_console_audit_path(@account, filter: key) %>"
+         class="px-4 py-2 text-sm font-medium <%= is_current ? 'text-blue-700 border-b-2 border-blue-600' : 'text-slate-500 hover:text-slate-700' %>">
+        <%= label %>
+      </a>
+    <% end %>
+  </section>
+
+  <%# ── 로그 테이블 ── %>
   <% if @audit_events.empty? %>
     <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
       <div class="text-slate-400 text-5xl mb-3">📜</div>
       <h3 class="text-base font-semibold text-slate-700">감사 로그가 없습니다</h3>
-      <p class="text-sm text-slate-500 mt-1">아직 기록된 활동이 없습니다.</p>
+      <p class="text-sm text-slate-500 mt-1">이 필터에 해당하는 로그가 없습니다.</p>
     </div>
   <% else %>
     <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">

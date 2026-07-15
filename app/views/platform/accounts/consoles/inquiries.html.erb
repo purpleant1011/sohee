@@ -1,79 +1,91 @@
-<%# inquiries.html.erb — P4-3: Account 직접 inquiries 컬럼 부재 → BusinessProfile 경유 %>
-<% content_for :title, "#{@account.name} · 문의함 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
+<%# inquiries.html.erb — P4-3d: 문의함 + 통계 + 인라인 답변 미리보기 + 액션 %>
+<% inqs = @inquiries || [] %>
+<% total_inq = inqs.size %>
+<% open_inq = inqs.respond_to?(:where) ? inqs.where(status: ["open", "received", "pending"]).count : 0 %>
+<% replied_inq = inqs.respond_to?(:where) ? inqs.where("status LIKE ?", "%replied%").count : 0 %>
+<% with_phone = inqs.respond_to?(:where) ? inqs.where.not(phone: [nil, ""]).count : 0 %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
   <%= render partial: "platform/accounts/consoles/breadcrumb", current: "문의함" %>
 
-  <header class="mb-6 flex items-baseline justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-slate-900">문의함</h1>
-      <p class="text-sm text-slate-500 mt-1">
-        고객 문의를 시간순으로 보고, 답변 상태·담당 직원을 추적합니다.
-        <%= @inquiries.respond_to?(:total_count) ? "(전체 #{@inquiries.total_count}건)" : "" %>
-      </p>
-    </div>
-    <div class="text-sm text-slate-500">
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-        <%= @account.name %>
-      </span>
-    </div>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">💬 문의함</h1>
+    <p class="text-sm text-slate-500 mt-1">고객 문의를 시간순으로 보고, 답변 상태·담당 직원을 추적합니다.</p>
   </header>
 
-  <% if @inquiries.blank? %>
+  <%# ── 4-통계 ── %>
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-2">
+    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
+      <div class="text-2xl font-bold text-slate-700"><%= total_inq %></div>
+      <div class="text-xs text-slate-600 mt-0.5">전체 문의</div>
+    </div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
+      <div class="text-2xl font-bold text-amber-700"><%= open_inq %></div>
+      <div class="text-xs text-slate-600 mt-0.5">미답변</div>
+    </div>
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+      <div class="text-2xl font-bold text-emerald-700"><%= replied_inq %></div>
+      <div class="text-xs text-slate-600 mt-0.5">답변완료</div>
+    </div>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
+      <div class="text-2xl font-bold text-blue-700"><%= with_phone %></div>
+      <div class="text-xs text-slate-600 mt-0.5">연락처 확보</div>
+    </div>
+  </section>
+
+  <%# ── 문의 목록 ── %>
+  <% if inqs.empty? %>
     <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
       <div class="text-slate-400 text-5xl mb-3">💬</div>
       <h3 class="text-base font-semibold text-slate-700">아직 수신된 문의가 없습니다</h3>
-      <p class="text-sm text-slate-500 mt-1">
-        채널이 연결되고 첫 문의가 들어오면 이곳에 표시됩니다.
-      </p>
+      <p class="text-sm text-slate-500 mt-1">채널이 연결되고 첫 문의가 들어오면 표시됩니다.</p>
     </div>
   <% else %>
-    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-      <table class="min-w-full divide-y divide-slate-200">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">채널</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">작성자</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">내용</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">담당</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-slate-200">
-          <% @inquiries.each do |inq| %>
-            <tr class="hover:bg-slate-50">
-              <td class="px-4 py-2 text-xs text-slate-600 whitespace-nowrap">
-                <%= inq.created_at&.strftime("%m-%d %H:%M") %>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-600">
-                <%= inq.respond_to?(:channel) ? inq.channel : (inq.respond_to?(:channel_kind) ? inq.channel_kind : "—") %>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-700">
-                <%= inq.respond_to?(:author_name) ? inq.author_name : (inq.respond_to?(:user_name) ? inq.user_name : "익명") %>
-              </td>
-              <td class="px-4 py-2 text-sm text-slate-900 max-w-md">
-                <div class="truncate">
-                  <%= inq.respond_to?(:body) ? inq.body : (inq.respond_to?(:content) ? inq.content : inq.attributes.to_s) %>
-                </div>
-              </td>
-              <td class="px-4 py-2 text-xs">
-                <% st = inq.respond_to?(:status) ? inq.status : "open" %>
-                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
-                  <%= case st.to_s
+    <div class="space-y-2">
+      <% inqs.first(50).each do |inq| %>
+        <div class="bg-white rounded-lg border border-slate-200 p-4">
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-xs text-slate-500 font-mono">#<%= inq.id %></span>
+                <% st = inq.respond_to?(:status) ? inq.status.to_s : "open" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                  <%= case st
                       when /pending|open|received/ then 'bg-amber-100 text-amber-800'
                       when /answered|replied|closed/ then 'bg-emerald-100 text-emerald-800'
                       else 'bg-slate-100 text-slate-700'
                       end %>">
                   <%= st %>
                 </span>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-600">
-                <%= inq.respond_to?(:assigned_ai_employee) && inq.assigned_ai_employee ? inq.assigned_ai_employee.name : "—" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+                <span class="text-xs text-slate-500 ml-auto"><%= inq.created_at&.strftime("%m-%d %H:%M") %></span>
+              </div>
+              <h3 class="text-sm font-semibold text-slate-900">
+                <%= inq.respond_to?(:name) && inq.name.present? ? inq.name : "익명" %>
+                <% if inq.respond_to?(:subject) && inq.subject.present? %>
+                  · <%= inq.subject %>
+                <% end %>
+              </h3>
+              <% if inq.respond_to?(:body) && inq.body.present? %>
+                <p class="text-xs text-slate-600 mt-1 line-clamp-2"><%= inq.body %></p>
+              <% end %>
+              <div class="mt-2 flex items-center gap-3 text-xs text-slate-500 flex-wrap">
+                <% if inq.respond_to?(:email) && inq.email.present? %>
+                  <span>📧 <%= inq.email %></span>
+                <% end %>
+                <% if inq.respond_to?(:phone) && inq.phone.present? %>
+                  <span>📞 <%= inq.phone %></span>
+                <% end %>
+                <% if inq.respond_to?(:score) && inq.score.present? %>
+                  <span>점수: <%= inq.score %></span>
+                <% end %>
+              </div>
+            </div>
+            <div class="flex flex-col gap-1.5 shrink-0">
+              <button class="px-3 py-1.5 rounded-md bg-blue-600 text-white text-xs font-medium hover:bg-blue-700">답변 작성</button>
+              <button class="px-3 py-1.5 rounded-md bg-slate-100 text-slate-700 text-xs font-medium hover:bg-slate-200">전화 연결</button>
+            </div>
+          </div>
+        </div>
+      <% end %>
     </div>
   <% end %>
 

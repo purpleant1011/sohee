@@ -1,68 +1,74 @@
-<%# monitoring.html.erb — P4-3: AutomationExecution + PublicationAttempt 2개 큐 %>
-<% content_for :title, "#{@account.name} · 자동 실행 모니터링 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
-  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "모니터링" %>
+<%# monitoring.html.erb — P4-3d: 자동 실행 + 게시 시도 + 통계 + 인라인 액션 %>
+<% content_for :title, "#{@account.name} · 모니터링 · 운영 콘솔" %>
+<% exes = @automation_executions || [] %>
+<% pubs = @publication_attempts || [] %>
+<% exes_pending = exes.respond_to?(:where) ? exes.where(state: ["pending", "running"]) : [] %>
+<% pubs_failed = pubs.respond_to?(:where) ? pubs.where("state LIKE ? OR error_message IS NOT NULL", "%fail%") : [] %>
+<% pubs_success = pubs.respond_to?(:where) ? pubs.where("state LIKE ?", "%success%") : [] %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "메시지 동기화" %>
 
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold text-slate-900">자동 실행 모니터링</h1>
-    <p class="text-sm text-slate-500 mt-1">
-      자동화 규칙 실행과 외부 채널 게시 시도를 시간순으로 보고합니다. 실패/지연 케이스를 빠르게 식별하세요.
-    </p>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">🔄 메시지 동기화 / 게시 이력</h1>
+    <p class="text-sm text-slate-500 mt-1">자동화 실행과 외부 채널 게시 시도를 시간순으로 보고합니다.</p>
   </header>
 
-  <%# ---- 자동 실행 ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      자동화 실행
-      <span class="ml-2 text-xs font-normal text-slate-500">(최근 50건)</span>
-    </h2>
-    <% if @automation_executions.blank? || @automation_executions.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        실행 이력이 없습니다.
-      </div>
+  <%# ── 4-통계 ── %>
+  <section class="grid grid-cols-2 md:grid-cols-4 gap-2">
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
+      <div class="text-2xl font-bold text-amber-700"><%= exes_pending.size %></div>
+      <div class="text-xs text-slate-600 mt-0.5">진행중 실행</div>
+    </div>
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+      <div class="text-2xl font-bold text-emerald-700"><%= pubs_success.size %></div>
+      <div class="text-xs text-slate-600 mt-0.5">게시 성공</div>
+    </div>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center">
+      <div class="text-2xl font-bold text-rose-700"><%= pubs_failed.size %></div>
+      <div class="text-xs text-slate-600 mt-0.5">게시 실패</div>
+    </div>
+    <div class="rounded-lg border border-slate-200 bg-slate-50 p-3 text-center">
+      <div class="text-2xl font-bold text-slate-700"><%= exes.size %></div>
+      <div class="text-xs text-slate-600 mt-0.5">전체 실행</div>
+    </div>
+  </section>
+
+  <%# ── 자동 실행 ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">자동화 실행 (최근 50건)</h2>
+    <% if exes.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">실행 이력이 없습니다.</div>
     <% else %>
       <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
+        <table class="min-w-full divide-y divide-slate-200 text-sm">
           <thead class="bg-slate-50">
             <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시도</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">규칙</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">직원</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">에러</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">시도</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">에러</th>
+              <th class="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">종료</th>
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-slate-200">
-            <% @automation_executions.each do |ex| %>
+            <% exes.first(20).each do |ex| %>
               <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-xs text-slate-600 whitespace-nowrap">
-                  <%= ex.created_at&.strftime("%m-%d %H:%M:%S") %>
-                </td>
-                <td class="px-4 py-2 text-xs">
+                <td class="px-3 py-2 text-xs text-slate-600 whitespace-nowrap"><%= ex.created_at&.strftime("%m-%d %H:%M:%S") %></td>
+                <td class="px-3 py-2 text-xs">
                   <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
                     <%= case ex.state.to_s
                         when /succeeded|completed/ then 'bg-emerald-100 text-emerald-800'
                         when /running|in_progress/ then 'bg-blue-100 text-blue-800'
                         when /failed/ then 'bg-rose-100 text-rose-800'
-                        when /pending|scheduled|awaiting_approval/ then 'bg-amber-100 text-amber-800'
+                        when /pending|awaiting/ then 'bg-amber-100 text-amber-800'
                         else 'bg-slate-100 text-slate-700'
                         end %>">
                     <%= ex.state %>
                   </span>
                 </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= ex.attempts %>/<%= ex.max_attempts %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-700">
-                  <%= ex.automation_rule_id %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= ex.ai_employee_id || "—" %>
-                </td>
-                <td class="px-4 py-2 text-xs text-rose-700 font-mono truncate max-w-xs">
-                  <%= ex.error_message.presence || "—" %>
-                </td>
+                <td class="px-3 py-2 text-xs text-slate-600"><%= ex.attempts %>/<%= ex.max_attempts %></td>
+                <td class="px-3 py-2 text-xs text-rose-700 font-mono truncate max-w-xs"><%= ex.error_message.presence || "—" %></td>
+                <td class="px-3 py-2 text-xs text-slate-500"><%= ex.finished_at&.strftime("%H:%M:%S") || "진행중" %></td>
               </tr>
             <% end %>
           </tbody>
@@ -71,68 +77,32 @@
     <% end %>
   </section>
 
-  <%# ---- 게시 시도 ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      채널 게시 시도
-      <span class="ml-2 text-xs font-normal text-slate-500">(최근 50건)</span>
-    </h2>
-    <% if @publication_attempts.blank? || @publication_attempts.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        게시 이력이 없습니다.
-      </div>
+  <%# ── 게시 시도 ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">채널 게시 시도 (최근 50건)</h2>
+    <% if pubs.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">게시 이력이 없습니다.</div>
     <% else %>
-      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시도</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">콘텐츠</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">채널</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">외부 URL</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
-            <% @publication_attempts.each do |pa| %>
-              <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-xs text-slate-600 whitespace-nowrap">
-                  <%= pa.created_at&.strftime("%m-%d %H:%M:%S") %>
-                </td>
-                <td class="px-4 py-2 text-xs">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
-                    <%= case pa.state.to_s
-                        when /succeeded|posted|published/ then 'bg-emerald-100 text-emerald-800'
-                        when /failed/ then 'bg-rose-100 text-rose-800'
-                        else 'bg-slate-100 text-slate-700'
-                        end %>">
-                    <%= pa.state %>
-                  </span>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= pa.attempts %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-700">
-                  <%= pa.content_item_id %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= pa.channel_connection_id %>
-                </td>
-                <td class="px-4 py-2 text-xs">
-                  <% if pa.external_url.present? %>
-                    <a href="<%= pa.external_url %>" target="_blank" rel="noopener"
-                       class="text-blue-600 hover:underline truncate inline-block max-w-xs align-bottom">
-                      <%= pa.external_url %>
-                    </a>
-                  <% else %>
-                    <span class="text-slate-400">—</span>
-                  <% end %>
-                </td>
-              </tr>
+      <div class="space-y-2">
+        <% pubs.first(20).each do |pa| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs text-slate-500 font-mono">#<%= pa.id %></span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                <%= pa.state.to_s.match?(/success/) ? 'bg-emerald-100 text-emerald-800' : (pa.state.to_s.match?(/fail/) ? 'bg-rose-100 text-rose-800' : 'bg-slate-100 text-slate-700') %>">
+                <%= pa.state %>
+              </span>
+              <span class="text-xs text-slate-500">시도 <%= pa.attempts %></span>
+              <span class="text-xs text-slate-500 ml-auto"><%= pa.created_at&.strftime("%m-%d %H:%M") %></span>
+            </div>
+            <% if pa.error_message.present? %>
+              <p class="text-xs text-rose-700 mt-1">⚠ <%= pa.error_message %></p>
             <% end %>
-          </tbody>
-        </table>
+            <% if pa.respond_to?(:external_url) && pa.external_url.present? %>
+              <a href="<%= pa.external_url %>" target="_blank" rel="noopener" class="text-xs text-blue-600 hover:underline">🔗 <%= pa.external_url %></a>
+            <% end %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </section>

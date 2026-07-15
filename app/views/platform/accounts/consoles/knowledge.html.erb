@@ -1,83 +1,76 @@
-<%# knowledge.html.erb — P4-3: 지식 베이스 (문서 + FAQ) %>
+<%# knowledge.html.erb — P4-3d: 매장 안내 자료 + FAQ + 통계 + 탭 %>
 <% content_for :title, "#{@account.name} · 지식 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
-  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "지식" %>
+<% docs = @knowledge_documents || [] %>
+<% faqs = @faqs || [] %>
+<% doc_count = docs.respond_to?(:size) ? docs.size : 0 %>
+<% faq_count = faqs.respond_to?(:size) ? faqs.size : 0 %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "매장 안내 자료" %>
 
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold text-slate-900">지식 베이스</h1>
-    <p class="text-sm text-slate-500 mt-1">
-      AI 직원이 인용하는 RAG 소스(문서, FAQ)를 관리합니다. RAG 누락은 "지식 갭" 페이지에서 추적됩니다.
-    </p>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">📚 매장 안내 자료 / FAQ</h1>
+    <p class="text-sm text-slate-500 mt-1">AI 직원이 인용하는 RAG 소스를 관리합니다.</p>
   </header>
 
-  <%# ---- 문서 ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      문서
-      <span class="ml-2 text-xs font-normal text-slate-500">
-        (<%= @knowledge_documents&.size || 0 %>건)
-      </span>
-    </h2>
-    <% if @knowledge_documents.blank? || @knowledge_documents.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        등록된 문서가 없습니다.
-      </div>
+  <%# ── 2-통계 ── %>
+  <section class="grid grid-cols-2 gap-2">
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+      <div class="text-2xl font-bold text-emerald-700"><%= doc_count %></div>
+      <div class="text-xs text-slate-600 mt-0.5">문서</div>
+    </div>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
+      <div class="text-2xl font-bold text-blue-700"><%= faq_count %></div>
+      <div class="text-xs text-slate-600 mt-0.5">FAQ</div>
+    </div>
+  </section>
+
+  <%# ── 문서 ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">매장 안내 자료 (<%= doc_count %>건)</h2>
+    <% if doc_count.zero? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">등록된 문서가 없습니다.</div>
     <% else %>
-      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">ID</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">제목</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">등록일</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
-            <% @knowledge_documents.each do |doc| %>
-              <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-xs text-slate-600 font-mono">#<%= doc.id %></td>
-                <td class="px-4 py-2 text-sm text-slate-900"><%= doc.respond_to?(:title) ? doc.title : (doc.respond_to?(:name) ? doc.name : "—") %></td>
-                <td class="px-4 py-2 text-xs text-slate-500"><%= doc.created_at&.strftime("%Y-%m-%d") %></td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+      <div class="space-y-2">
+        <% docs.first(20).each do |doc| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="text-xs text-slate-500 font-mono">#<%= doc.id %></div>
+                <h3 class="text-sm font-semibold text-slate-900 mt-0.5">
+                  <%= doc.respond_to?(:title) ? doc.title : (doc.respond_to?(:name) ? doc.name : "문서") %>
+                </h3>
+                <% if doc.respond_to?(:body) && doc.body.present? %>
+                  <p class="text-xs text-slate-600 mt-1 line-clamp-2"><%= doc.body.to_s[0, 200] %></p>
+                <% end %>
+                <div class="text-xs text-slate-500 mt-2">등록: <%= doc.created_at&.strftime("%Y-%m-%d") %></div>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </section>
 
-  <%# ---- FAQ ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      FAQ
-      <span class="ml-2 text-xs font-normal text-slate-500">
-        (<%= @faqs&.size || 0 %>건)
-      </span>
-    </h2>
-    <% if @faqs.blank? || @faqs.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        등록된 FAQ가 없습니다.
-      </div>
+  <%# ── FAQ ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">FAQ (<%= faq_count %>건)</h2>
+    <% if faq_count.zero? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">등록된 FAQ가 없습니다.</div>
     <% else %>
-      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">질문</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">답변 미리보기</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
-            <% @faqs.each do |faq| %>
-              <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-sm text-slate-900 max-w-md"><%= faq.respond_to?(:question) ? faq.question : "—" %></td>
-                <td class="px-4 py-2 text-xs text-slate-600 max-w-md truncate">
-                  <%= faq.respond_to?(:answer) ? faq.answer.to_s[0,80] : "—" %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+      <div class="space-y-2">
+        <% faqs.first(20).each do |faq| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-start gap-2">
+              <span class="text-emerald-600 font-bold text-sm">Q.</span>
+              <div class="flex-1">
+                <h3 class="text-sm font-medium text-slate-900"><%= faq.respond_to?(:question) ? faq.question : "—" %></h3>
+                <% if faq.respond_to?(:answer) && faq.answer.present? %>
+                  <p class="text-xs text-slate-600 mt-1">A. <%= faq.answer.to_s[0, 200] %></p>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </section>

@@ -262,6 +262,16 @@ Rails.application.routes.draw do
         get "/inquiries", to: "consoles#inquiries", as: :console_inquiries
         get "/monitoring", to: "consoles#monitoring", as: :console_monitoring
         get "/safety",    to: "consoles#safety",    as: :console_safety
+
+        # P4-3d: 콘솔 액션 라우트 (콘텐츠/채널/자동화/인시던트)
+        post "/content/:content_id/approve", to: "consoles#approve_content",   as: :console_content_approve
+        post "/content/:content_id/reject",  to: "consoles#reject_content",    as: :console_content_reject
+        post "/content/:content_id/publish", to: "consoles#publish_content",   as: :console_content_publish
+        post "/channels/:channel_id/sync",       to: "consoles#sync_channel",       as: :console_channel_sync
+        post "/channels/:channel_id/toggle",     to: "consoles#toggle_channel",     as: :console_channel_toggle
+        post "/channels/:channel_id/disconnect", to: "consoles#disconnect_channel", as: :console_channel_disconnect
+        post "/automations/:rule_id/toggle", to: "consoles#toggle_automation", as: :console_automation_toggle
+        post "/automations/:rule_id/run",    to: "consoles#run_automation",    as: :console_automation_run
       end
     end
     resources :platform_staff, only: [:index, :show]

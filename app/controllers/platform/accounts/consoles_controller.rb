@@ -31,12 +31,83 @@ module Platform
 
       def channels
         @channel_connections = @account.channel_connections.includes(:channel_scopes).order(created_at: :desc)
+        @channel_stats = {
+          total:    @channel_connections.count,
+          discord:  @channel_connections.where(kind: "discord").count,
+          active:   @channel_connections.where(status: "active").count,
+          test:     @channel_connections.where("scopes_json::text LIKE ?", "%test_mode%").count,
+          official: @channel_connections.where(status: "active").count
+        }
         render "platform/accounts/consoles/channels"
+      end
+
+      def sync_channel
+        ch = @account.channel_connections.find(params[:channel_id])
+        DiscordOutboundJob.perform_later(channel_connection_id: ch.id, kind: "resync") if defined?(DiscordOutboundJob)
+        redirect_to platform_account_console_channels_path(@account), notice: "채널 ##{ch.id} 동기화 요청됨"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#sync_channel] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_channels_path(@account), alert: "동기화 실패: #{e.message}"
+      end
+
+      def toggle_channel
+        # ChannelConnection has no test_mode column. Toggle a marker in scopes_json instead.
+        ch = @account.channel_connections.find(params[:channel_id])
+        current = ch.scopes_json.is_a?(Hash) ? ch.scopes_json["test_mode"] : false
+        new_scopes = (ch.scopes_json.is_a?(Hash) ? ch.scopes_json.dup : {})
+        new_scopes["test_mode"] = !current
+        ch.update!(scopes_json: new_scopes)
+        new_state = new_scopes["test_mode"] ? "테스트" : "공식"
+        redirect_to platform_account_console_channels_path(@account), notice: "채널 ##{ch.id} → #{new_state} 모드"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#toggle_channel] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_channels_path(@account), alert: "전환 실패: #{e.message}"
+      end
+
+      def disconnect_channel
+        ch = @account.channel_connections.find(params[:channel_id])
+        ch.update!(status: "disconnected")
+        redirect_to platform_account_console_channels_path(@account), notice: "채널 ##{ch.id} 연결 해제됨"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#disconnect_channel] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_channels_path(@account), alert: "해제 실패: #{e.message}"
       end
 
       def automations
         @automation_rules = @account.automation_rules.includes(:automation_executions, :automation_schedules).order(created_at: :desc).limit(50)
+        @automation_stats = {
+          total:     @automation_rules.count,
+          active:    @automation_rules.where(status: "active").count,
+          paused:    @automation_rules.where(status: "paused").count,
+          ran_24h:   AutomationExecution.where(automation_rule_id: @automation_rules.pluck(:id)).where("created_at > ?", 24.hours.ago).count
+        }
         render "platform/accounts/consoles/automations"
+      end
+
+      def toggle_automation
+        rule = @account.automation_rules.find(params[:rule_id])
+        rule.update!(status: rule.status == "active" ? "paused" : "active")
+        new_state = rule.status == "active" ? "재개" : "일시중지"
+        redirect_to platform_account_console_automations_path(@account), notice: "규칙 ##{rule.id} → #{new_state}"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#toggle_automation] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_automations_path(@account), alert: "전환 실패: #{e.message}"
+      end
+
+      def run_automation
+        rule = @account.automation_rules.find(params[:rule_id])
+        AutomationExecution.create!(
+          account: @account,
+          automation_rule: rule,
+          state: "pending",
+          schedule_kind: "manual",
+          trigger_kind: "manual",
+          idempotency_key: "manual-#{rule.id}-#{Time.current.to_i}"
+        )
+        redirect_to platform_account_console_automations_path(@account), notice: "규칙 ##{rule.id} 수동 실행 큐에 등록됨"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#run_automation] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_automations_path(@account), alert: "실행 실패: #{e.message}"
       end
 
       def runtime
@@ -46,13 +117,75 @@ module Platform
       end
 
       def audit
-        @audit_events = @account.audit_events.order(created_at: :desc).limit(100)
+        scope = @account.audit_events
+        @audit_filter = params[:filter].presence || "all"
+        scope = case @audit_filter
+                when "today"   then scope.where("occurred_at > ?", 24.hours.ago)
+                when "logins"  then scope.where(action: "login")
+                when "changes" then scope.where("action LIKE ? OR action LIKE ?", "%change%", "%update%")
+                else scope
+                end
+        @audit_events = scope.order(occurred_at: :desc).limit(100)
+        @audit_stats = {
+          total:     @account.audit_events.count,
+          today:     @account.audit_events.where("occurred_at > ?", 24.hours.ago).count,
+          errors:    @account.audit_events.where("action LIKE ? OR action LIKE ?", "%error%", "%fail%").count,
+          logins:    @account.audit_events.where(action: "login").count
+        }
         render "platform/accounts/consoles/audit"
       end
 
       def content
-        @content_items = @account.content_items.order(created_at: :desc).limit(50)
+        scope = @account.content_items
+        @content_filter = params[:filter].presence || "all"
+        scope = case @content_filter
+                when "draft"     then scope.where(state: "draft")
+                when "approved"  then scope.where(state: "approved")
+                when "scheduled" then scope.where(state: "scheduled")
+                when "published" then scope.where(state: "published")
+                when "rejected"  then scope.where(safety_state: "rejected")
+                else scope
+                end
+        @content_items = scope.order(created_at: :desc).limit(50)
+        @content_stats = {
+          total:     @account.content_items.count,
+          draft:     @account.content_items.where(state: "draft").count,
+          approved:  @account.content_items.where(state: "approved").count,
+          scheduled: @account.content_items.where(state: "scheduled").count,
+          published: @account.content_items.where(state: "published").count,
+          failed:    @account.content_items.where(safety_state: "rejected").count
+        }
         render "platform/accounts/consoles/content"
+      end
+
+      # POST /platform/accounts/:account_id/content/:content_id/approve
+      def approve_content
+        item = @account.content_items.find(params[:content_id])
+        item.update!(state: "approved")
+        redirect_to platform_account_console_content_path(@account), notice: "콘텐츠 ##{item.id} 승인됨"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#approve_content] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_content_path(@account), alert: "승인 실패: #{e.message}"
+      end
+
+      # POST /platform/accounts/:account_id/content/:content_id/reject
+      def reject_content
+        item = @account.content_items.find(params[:content_id])
+        item.update!(safety_state: "rejected", state: "draft")
+        redirect_to platform_account_console_content_path(@account), notice: "콘텐츠 ##{item.id} 거부됨 (초안으로 되돌림)"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#reject_content] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_content_path(@account), alert: "거부 실패: #{e.message}"
+      end
+
+      # POST /platform/accounts/:account_id/content/:content_id/publish
+      def publish_content
+        item = @account.content_items.find(params[:content_id])
+        item.update!(state: "published", published_at: Time.current)
+        redirect_to platform_account_console_content_path(@account), notice: "콘텐츠 ##{item.id} 게시 완료"
+      rescue Exception => e
+        Rails.logger.warn("[ConsolesController#publish_content] #{e.class}: #{e.message}")
+        redirect_to platform_account_console_content_path(@account), alert: "게시 실패: #{e.message}"
       end
 
       def inquiries

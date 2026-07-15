@@ -1,62 +1,102 @@
-<%# persona.html.erb — P4-3: AI 직원 목록 %>
-<% content_for :title, "#{@account.name} · 페르소나 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
-  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "페르소나" %>
+<%# persona.html.erb — P4-3d: 사업장 정보 + AI 직원 카드 + 페르소나 속성 %>
+<% content_for :title, "#{@account.name} · 사업장 · 운영 콘솔" %>
+<% bp = @account.business_profiles.first %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
+  <%= render partial: "platform/accounts/consoles/breadcrumb", current: "사업장 정보" %>
 
-  <header class="mb-6 flex items-baseline justify-between">
-    <div>
-      <h1 class="text-2xl font-bold text-slate-900">페르소나 (AI 직원)</h1>
-      <p class="text-sm text-slate-500 mt-1">
-        이 사업자가 운영하는 AI 직원과 그 역할/지식/자동화 권한을 보여줍니다.
-      </p>
-    </div>
-    <div class="text-sm text-slate-500">
-      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">
-        <%= @ai_employees.size %>명
-      </span>
-    </div>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">🏪 사업장 정보</h1>
+    <p class="text-sm text-slate-500 mt-1">사업장 프로필과 AI 직원 구성을 관리합니다.</p>
   </header>
 
-  <% if @ai_employees.empty? %>
-    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-      <div class="text-slate-400 text-5xl mb-3">👤</div>
-      <h3 class="text-base font-semibold text-slate-700">AI 직원이 없습니다</h3>
-      <p class="text-sm text-slate-500 mt-1">셋업에서 첫 AI 직원을 만들어 주세요.</p>
-    </div>
+  <%# ── 사업장 프로필 ── %>
+  <% if bp %>
+    <section class="bg-white rounded-lg border border-slate-200 p-5">
+      <h2 class="text-base font-bold text-slate-900 mb-3">사업장 프로필</h2>
+      <dl class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div>
+          <dt class="text-xs text-slate-500">상호</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:legal_name) ? (bp.legal_name.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">브랜드</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:trade_name) ? (bp.trade_name.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">업종</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:industry_code) ? (bp.industry_code.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">지역</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:region_label) ? (bp.region_label.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">대표자</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:owner_name) ? (bp.owner_name.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">연락처</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:phone) ? (bp.phone.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">공개 이메일</dt>
+          <dd class="font-medium text-slate-900"><%= bp.respond_to?(:public_email) ? (bp.public_email.presence || "—") : "—" %></dd>
+        </div>
+        <div>
+          <dt class="text-xs text-slate-500">셋업 진행률</dt>
+          <dd class="font-medium text-slate-900">
+            <% progress = bp.respond_to?(:onboarding_progress_percent) ? bp.onboarding_progress_percent : nil %>
+            <%= progress ? "#{progress}%" : "—" %>
+            <% if bp.respond_to?(:onboarding_complete?) %>
+              <% if bp.onboarding_complete? %>
+                <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">완료</span>
+              <% else %>
+                <span class="ml-1 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">진행중</span>
+              <% end %>
+            <% end %>
+          </dd>
+        </div>
+      </dl>
+    </section>
   <% else %>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <% @ai_employees.each do |emp| %>
-        <div class="bg-white rounded-lg border border-slate-200 p-4">
-          <div class="flex items-start justify-between">
-            <div>
-              <div class="text-xs text-slate-500 font-mono">#<%= emp.id %></div>
-              <h3 class="text-base font-semibold text-slate-900 mt-0.5">
-                <%= emp.name %>
-              </h3>
-              <% if emp.respond_to?(:role) && emp.role.present? %>
-                <p class="text-xs text-slate-600 mt-1"><%= emp.role %></p>
+    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">사업장 프로필이 없습니다.</div>
+  <% end %>
+
+  <%# ── AI 직원 ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">AI 직원 (<%= @ai_employees.size %>명)</h2>
+    <% if @ai_employees.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">AI 직원이 없습니다.</div>
+    <% else %>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <% @ai_employees.each do |emp| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-4">
+            <div class="flex items-start justify-between">
+              <div>
+                <div class="text-xs text-slate-500 font-mono">#<%= emp.id %> · <%= emp.respond_to?(:staff_code) ? emp.staff_code : "—" %></div>
+                <h3 class="text-sm font-semibold text-slate-900 mt-0.5"><%= emp.name %></h3>
+                <p class="text-xs text-slate-600 mt-1"><%= emp.respond_to?(:role) ? (emp.role.presence || "역할 미정") : "" %></p>
+              </div>
+              <% if emp.respond_to?(:status) %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium <%= emp.status.to_s == 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700' %>">
+                  <%= emp.status %>
+                </span>
               <% end %>
             </div>
-            <% if emp.respond_to?(:status) %>
-              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                <%= emp.status.to_s == 'active' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-700' %>">
-                <%= emp.status %>
-              </span>
+            <% if emp.respond_to?(:description) && emp.description.present? %>
+              <p class="text-xs text-slate-600 mt-2 line-clamp-3"><%= emp.description %></p>
             <% end %>
+            <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
+              <span>생성: <%= emp.created_at&.strftime("%Y-%m-%d") %></span>
+              <% if emp.respond_to?(:last_login_at) && emp.last_login_at %>
+                <span>최근: <%= emp.last_login_at.strftime("%m-%d %H:%M") %></span>
+              <% end %>
+            </div>
           </div>
-          <% if emp.respond_to?(:description) && emp.description.present? %>
-            <p class="text-xs text-slate-600 mt-3 line-clamp-3"><%= emp.description %></p>
-          <% end %>
-          <div class="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-500 flex items-center justify-between">
-            <span>생성: <%= emp.created_at&.strftime("%Y-%m-%d") %></span>
-            <% if emp.respond_to?(:staff_code) && emp.staff_code.present? %>
-              <span class="font-mono"><%= emp.staff_code %></span>
-            <% end %>
-          </div>
-        </div>
-      <% end %>
-    </div>
-  <% end %>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
 
   <%= render partial: "platform/accounts/consoles/sibling_nav", current: :persona %>
 </div>

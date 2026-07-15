@@ -1,91 +1,88 @@
-<%# safety.html.erb — P4-3: SafetyLog.account_id 직접 매칭, 안전 검열 이력 %>
-<% content_for :title, "#{@account.name} · 안전 검열 · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
+<%# safety.html.erb — P4-3d: 안전 검열 + pass/warn/block 통계 + 액션 %>
+<% logs = @safety_logs || [] %>
+<% passed = logs.respond_to?(:where) ? logs.where(verdict: "pass").count : 0 %>
+<% warned = logs.respond_to?(:where) ? logs.where(verdict: "warn").count : 0 %>
+<% blocked = logs.respond_to?(:where) ? logs.where(verdict: "block").count : 0 rescue 0 %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
   <%= render partial: "platform/accounts/consoles/breadcrumb", current: "안전" %>
 
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold text-slate-900">안전 검열 로그</h1>
-    <p class="text-sm text-slate-500 mt-1">
-      AI 직원이 생성한 콘텐츠가 안전 규칙을 통과한 기록입니다. 실패/경고 사례를 빠르게 추적하세요.
-    </p>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">🛡️ 안전 검열 로그</h1>
+    <p class="text-sm text-slate-500 mt-1">AI 직원이 생성한 콘텐츠가 안전 규칙을 통과한 기록입니다.</p>
   </header>
 
-  <%# 요약 카드 %>
-  <% summary = {
-    passed: @safety_logs.respond_to?(:where) ? @safety_logs.where(verdict: "pass").count : 0,
-    warned: @safety_logs.respond_to?(:where) ? @safety_logs.where(verdict: "warn").count : 0,
-    blocked: @safety_logs.respond_to?(:where) ? @safety_logs.where(verdict: "block").count : 0
-  } rescue { passed: 0, warned: 0, blocked: 0 } %>
+  <%# ── 3-통계 ── %>
+  <section class="grid grid-cols-3 gap-2">
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+      <div class="text-2xl font-bold text-emerald-700"><%= passed %></div>
+      <div class="text-xs text-emerald-700 uppercase mt-0.5">통과</div>
+    </div>
+    <div class="rounded-lg border border-amber-200 bg-amber-50 p-3 text-center">
+      <div class="text-2xl font-bold text-amber-700"><%= warned %></div>
+      <div class="text-xs text-amber-700 uppercase mt-0.5">경고</div>
+    </div>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center">
+      <div class="text-2xl font-bold text-rose-700"><%= blocked %></div>
+      <div class="text-xs text-rose-700 uppercase mt-0.5">차단</div>
+    </div>
+  </section>
 
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-    <div class="bg-white rounded-lg border border-emerald-200 p-4">
-      <div class="text-xs text-emerald-700 uppercase font-medium">통과</div>
-      <div class="text-2xl font-bold text-emerald-900 mt-1"><%= summary[:passed] %></div>
-    </div>
-    <div class="bg-white rounded-lg border border-amber-200 p-4">
-      <div class="text-xs text-amber-700 uppercase font-medium">경고</div>
-      <div class="text-2xl font-bold text-amber-900 mt-1"><%= summary[:warned] %></div>
-    </div>
-    <div class="bg-white rounded-lg border border-rose-200 p-4">
-      <div class="text-xs text-rose-700 uppercase font-medium">차단</div>
-      <div class="text-2xl font-bold text-rose-900 mt-1"><%= summary[:blocked] %></div>
-    </div>
-  </div>
-
-  <% if @safety_logs.blank? || @safety_logs.empty? %>
-    <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
-      <div class="text-slate-400 text-5xl mb-3">🛡️</div>
-      <h3 class="text-base font-semibold text-slate-700">안전 검열 기록이 없습니다</h3>
-      <p class="text-sm text-slate-500 mt-1">AI 직원이 콘텐츠를 생성하면 자동으로 기록됩니다.</p>
-    </div>
-  <% else %>
-    <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-      <table class="min-w-full divide-y divide-slate-200">
-        <thead class="bg-slate-50">
-          <tr>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">단계</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">판정</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">규칙</th>
-            <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">메모</th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-slate-200">
-          <% @safety_logs.each do |log| %>
-            <tr class="hover:bg-slate-50">
-              <td class="px-4 py-2 text-xs text-slate-600 whitespace-nowrap">
-                <%= log.created_at&.strftime("%Y-%m-%d %H:%M:%S") %>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-700">
-                <%= log.stage %>
-              </td>
-              <td class="px-4 py-2 text-xs">
-                <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
-                  <%= case log.verdict.to_s
-                      when 'pass' then 'bg-emerald-100 text-emerald-800'
-                      when 'warn' then 'bg-amber-100 text-amber-800'
-                      when 'block' then 'bg-rose-100 text-rose-800'
-                      else 'bg-slate-100 text-slate-700'
-                      end %>">
-                  <%= log.verdict %>
-                </span>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-700 font-mono">
-                <% if log.rules_json.present? %>
-                  <%= log.rules_json.is_a?(Array) ? log.rules_json.join(", ") : log.rules_json.to_s %>
-                <% else %>
-                  <span class="text-slate-400">—</span>
-                <% end %>
-              </td>
-              <td class="px-4 py-2 text-xs text-slate-600 truncate max-w-sm">
-                <%= log.notes.presence || "—" %>
-              </td>
-            </tr>
-          <% end %>
-        </tbody>
-      </table>
+  <%# ── 통과율 ── %>
+  <% total = passed + warned + blocked %>
+  <% if total > 0 %>
+    <% pass_pct = (passed * 100 / total) %>
+    <div class="bg-white rounded-lg border border-slate-200 p-4">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-sm font-semibold text-slate-900">전체 통과율</h3>
+        <span class="text-sm font-bold text-emerald-700"><%= pass_pct %>%</span>
+      </div>
+      <div class="h-2 bg-slate-100 rounded-full overflow-hidden flex">
+        <div class="bg-emerald-500" style="width: <%= passed * 100 / total %>%"></div>
+        <div class="bg-amber-500" style="width: <%= warned * 100 / total %>%"></div>
+        <div class="bg-rose-500" style="width: <%= blocked * 100 / total %>%"></div>
+      </div>
     </div>
   <% end %>
+
+  <%# ── 로그 ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">검열 이력 (최근 50건)</h2>
+    <% if logs.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-12 text-center">
+        <div class="text-slate-400 text-5xl mb-3">🛡️</div>
+        <h3 class="text-base font-semibold text-slate-700">안전 검열 기록이 없습니다</h3>
+      </div>
+    <% else %>
+      <div class="space-y-2">
+        <% logs.first(50).each do |log| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs text-slate-500 font-mono">#<%= log.id %></span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                <%= case log.verdict.to_s
+                    when 'pass' then 'bg-emerald-100 text-emerald-800'
+                    when 'warn' then 'bg-amber-100 text-amber-800'
+                    when 'block' then 'bg-rose-100 text-rose-800'
+                    else 'bg-slate-100 text-slate-700'
+                    end %>">
+                <%= log.verdict %>
+              </span>
+              <span class="text-xs text-slate-500">단계: <%= log.stage %></span>
+              <span class="text-xs text-slate-500 ml-auto"><%= log.created_at&.strftime("%m-%d %H:%M:%S") %></span>
+            </div>
+            <% if log.rules_json.present? %>
+              <p class="text-xs text-slate-700 mt-1">
+                규칙: <%= log.rules_json.is_a?(Array) ? log.rules_json.join(", ") : log.rules_json.to_s %>
+              </p>
+            <% end %>
+            <% if log.notes.present? %>
+              <p class="text-xs text-slate-600 mt-1"><%= log.notes %></p>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </section>
 
   <%= render partial: "platform/accounts/consoles/sibling_nav", current: :safety %>
 </div>

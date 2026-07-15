@@ -1,113 +1,93 @@
-<%# runtime.html.erb — P4-3: Runtime config + heartbeat %>
-<% content_for :title, "#{@account.name} · Runtime · 운영 콘솔" %>
-<div class="px-6 py-8 max-w-6xl mx-auto">
+<%# runtime.html.erb — P4-3d: Runtime 설정 + 하트비트 + 통계 + 액션 %>
+<% rc = @runtime_configs || [] %>
+<% hb = @runtime_heartbeats || [] %>
+<% active_rc = rc.respond_to?(:where) ? rc.where(status: "active") : [] %>
+<% hb_ok = hb.respond_to?(:where) ? hb.where(status: "ok").count : 0 %>
+<% hb_err = hb.respond_to?(:where) ? hb.where("status LIKE ?", "%error%").count : 0 %>
+<div class="px-6 py-8 max-w-6xl mx-auto space-y-6">
   <%= render partial: "platform/accounts/consoles/breadcrumb", current: "Runtime" %>
 
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold text-slate-900">Runtime</h1>
-    <p class="text-sm text-slate-500 mt-1">
-      AI 직원이 사용하는 모델/프롬프트 설정(Runtime Config)과 최근 헬스체크(Heartbeat) 결과.
-    </p>
+  <header>
+    <h1 class="text-2xl font-bold text-slate-900">⚙️ Runtime 설정 / 헬스체크</h1>
+    <p class="text-sm text-slate-500 mt-1">AI 직원이 사용하는 모델/프롬프트 설정과 헬스체크 결과.</p>
   </header>
 
-  <%# ---- Runtime Configs ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      Runtime Config
-      <span class="ml-2 text-xs font-normal text-slate-500">(<%= @runtime_configs.size %>개)</span>
-    </h2>
-    <% if @runtime_configs.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        등록된 Runtime Config가 없습니다.
-      </div>
+  <%# ── 3-통계 ── %>
+  <section class="grid grid-cols-3 gap-2">
+    <div class="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-center">
+      <div class="text-2xl font-bold text-emerald-700"><%= active_rc.size %></div>
+      <div class="text-xs text-slate-600 mt-0.5">활성 버전</div>
+    </div>
+    <div class="rounded-lg border border-blue-200 bg-blue-50 p-3 text-center">
+      <div class="text-2xl font-bold text-blue-700"><%= hb_ok %></div>
+      <div class="text-xs text-slate-600 mt-0.5">헬스 OK</div>
+    </div>
+    <div class="rounded-lg border border-rose-200 bg-rose-50 p-3 text-center">
+      <div class="text-2xl font-bold text-rose-700"><%= hb_err %></div>
+      <div class="text-xs text-slate-600 mt-0.5">헬스 오류</div>
+    </div>
+  </section>
+
+  <%# ── Runtime Configs ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">Runtime Config (<%= rc.size %>개)</h2>
+    <% if rc.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">등록된 Runtime Config가 없습니다.</div>
     <% else %>
-      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">버전</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">활성</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">모델</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">생성일</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
-            <% @runtime_configs.each do |cfg| %>
-              <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-xs text-slate-700 font-mono">v<%= cfg.version %></td>
-                <td class="px-4 py-2 text-xs">
-                  <% if cfg.respond_to?(:active) && cfg.active %>
-                    <span class="inline-flex items-center px-2 py-0.5 rounded font-medium bg-emerald-100 text-emerald-800">활성</span>
-                  <% else %>
-                    <span class="text-slate-400">—</span>
-                  <% end %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-700 font-mono">
-                  <%= cfg.respond_to?(:model) ? cfg.model : "—" %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-500">
-                  <%= cfg.created_at&.strftime("%Y-%m-%d") %>
-                </td>
-              </tr>
+      <div class="space-y-2">
+        <% rc.first(20).each do |cfg| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-slate-100 text-slate-700">v<%= cfg.version %></span>
+              <% if cfg.respond_to?(:status) && cfg.status == "active" %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">활성</span>
+              <% else %>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-700">대기</span>
+              <% end %>
+              <% if cfg.respond_to?(:model) && cfg.model.present? %>
+                <span class="text-xs text-slate-600 font-mono"><%= cfg.model %></span>
+              <% end %>
+              <span class="text-xs text-slate-500 ml-auto"><%= cfg.created_at&.strftime("%Y-%m-%d %H:%M") %></span>
+            </div>
+            <% if cfg.respond_to?(:meta_json) && cfg.meta_json.present? %>
+              <p class="text-xs text-slate-600 mt-1"><%= JSON.dump(cfg.meta_json)[0,200] %></p>
             <% end %>
-          </tbody>
-        </table>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </section>
 
-  <%# ---- Heartbeats ---- %>
-  <section class="mb-8">
-    <h2 class="text-lg font-semibold text-slate-800 mb-3">
-      헬스체크
-      <span class="ml-2 text-xs font-normal text-slate-500">(<%= @runtime_heartbeats&.size || 0 %>건)</span>
-    </h2>
-    <% if @runtime_heartbeats.blank? || @runtime_heartbeats.empty? %>
-      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
-        헬스체크 이력이 없습니다.
-      </div>
+  <%# ── Heartbeats ── %>
+  <section>
+    <h2 class="text-base font-bold text-slate-900 mb-3">헬스체크 (<%= hb.size %>건)</h2>
+    <% if hb.empty? %>
+      <div class="rounded-lg border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">헬스체크 이력이 없습니다.</div>
     <% else %>
-      <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-        <table class="min-w-full divide-y divide-slate-200">
-          <thead class="bg-slate-50">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">시각</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">소스</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">상태</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">열린 작업</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-slate-500 uppercase">실패(24h)</th>
-            </tr>
-          </thead>
-          <tbody class="bg-white divide-y divide-slate-200">
-            <% @runtime_heartbeats.each do |h| %>
-              <tr class="hover:bg-slate-50">
-                <td class="px-4 py-2 text-xs text-slate-600 whitespace-nowrap">
-                  <%= h.checked_at&.strftime("%Y-%m-%d %H:%M:%S") %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-700">
-                  <%= h.source %> · config #<%= h.runtime_config_id %>
-                </td>
-                <td class="px-4 py-2 text-xs">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded font-medium
-                    <%= case h.status.to_s
-                        when 'ok', 'healthy' then 'bg-emerald-100 text-emerald-800'
-                        when 'degraded', 'warning' then 'bg-amber-100 text-amber-800'
-                        when 'down', 'unhealthy', 'error' then 'bg-rose-100 text-rose-800'
-                        else 'bg-slate-100 text-slate-700'
-                        end %>">
-                    <%= h.status %>
-                  </span>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= h.respond_to?(:open_jobs) ? h.open_jobs : "—" %>
-                </td>
-                <td class="px-4 py-2 text-xs text-slate-600">
-                  <%= h.respond_to?(:failed_jobs_24h) ? h.failed_jobs_24h : "—" %>
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+      <div class="space-y-2">
+        <% hb.first(20).each do |h| %>
+          <div class="bg-white rounded-lg border border-slate-200 p-3">
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-500 font-mono"><%= h.checked_at&.strftime("%m-%d %H:%M:%S") %></span>
+              <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
+                <%= case h.status.to_s
+                    when 'ok', 'healthy' then 'bg-emerald-100 text-emerald-800'
+                    when 'degraded', 'warning' then 'bg-amber-100 text-amber-800'
+                    when 'down', 'unhealthy', 'error' then 'bg-rose-100 text-rose-800'
+                    else 'bg-slate-100 text-slate-700'
+                    end %>">
+                <%= h.status %>
+              </span>
+              <span class="text-xs text-slate-500">소스: <%= h.source %></span>
+              <% if h.respond_to?(:open_jobs) %>
+                <span class="text-xs text-slate-500">열린 작업: <%= h.open_jobs %></span>
+              <% end %>
+              <% if h.respond_to?(:failed_jobs_24h) %>
+                <span class="text-xs text-slate-500">24h 실패: <%= h.failed_jobs_24h %></span>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       </div>
     <% end %>
   </section>
